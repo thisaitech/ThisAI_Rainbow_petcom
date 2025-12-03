@@ -105,7 +105,7 @@ export function TestimonialsCarousel({
               dynamicBullets: true,
             }}
             autoplay={{ 
-              delay: 4000, 
+              delay: 5000, // 5 seconds - consistent with all carousels
               disableOnInteraction: false, 
               pauseOnMouseEnter: true 
             }}

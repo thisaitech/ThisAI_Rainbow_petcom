@@ -117,78 +117,134 @@ function MobileNavItem({
 
 const navigation = [
   { name: 'Home', href: '/' },
-  { 
-    name: 'Sale', 
-    href: '/shop?filter=sale',
+  {
+    name: 'Shop All',
+    href: '/shop',
     megaMenu: true,
-    highlight: true,
     children: [
-      { 
-        name: 'Hot Deals 🔥',
+      {
+        name: '🐠 Live Fish',
         items: [
-          { name: 'Flash Sale - Up to 50% Off', href: '/shop?filter=sale' },
-          { name: 'Best Sellers', href: '/shop?filter=bestseller' },
-          { name: 'New Arrivals', href: '/shop?filter=new' },
-          { name: 'Clearance Sale', href: '/shop?filter=sale' },
+          { name: 'Fancy Guppies', href: '/shop?category=guppies' },
+          { name: 'Fancy Koi', href: '/shop?category=koi' },
+          { name: 'Discus Fish', href: '/shop?category=discus' },
+          { name: 'Betta Fish', href: '/shop?category=betta' },
+          { name: 'Plecos & Catfish', href: '/shop?category=plecos' },
+          { name: 'Shrimp & Lobsters', href: '/shop?category=shrimp' },
         ]
       },
-      { 
-        name: 'Shop by Pet',
+      {
+        name: '🏠 Tanks & Equipment',
         items: [
-          { name: '🐕 Dog Products', href: '/shop?pet=dog' },
-          { name: '🐈 Cat Products', href: '/shop?pet=cat' },
-          { name: '🐦 Bird Supplies', href: '/shop?category=bird' },
-          { name: '🐠 Fish Supplies', href: '/shop?category=fish' },
+          { name: 'Ultra Clear Tanks', href: '/shop?category=tanks' },
+          { name: 'Canister Filters', href: '/shop?category=filters' },
+          { name: 'Heaters & Chillers', href: '/shop?category=heaters' },
+          { name: 'LED Lighting', href: '/shop?category=lighting' },
+          { name: 'CO2 Systems', href: '/shop?category=co2' },
+          { name: 'Air Pumps', href: '/shop?category=pumps' },
         ]
       },
-      { 
-        name: 'Categories',
+      {
+        name: '🌿 Decor & Plants',
         items: [
-          { name: 'Food & Treats', href: '/shop?category=food' },
-          { name: 'Toys & Play', href: '/shop?category=toys' },
-          { name: 'Beds & Furniture', href: '/shop?category=beds' },
-          { name: 'Health & Wellness', href: '/shop?category=health' },
+          { name: 'Aquatic Plants', href: '/shop?category=plants' },
+          { name: 'Driftwood', href: '/shop?category=driftwood' },
+          { name: 'Rocks & Stones', href: '/shop?category=rocks' },
+          { name: 'Artificial Decor', href: '/shop?category=decor' },
+          { name: 'Substrates & Sand', href: '/shop?category=substrate' },
         ]
       },
     ]
   },
-  { 
-    name: 'Services', 
-    href: '/services',
+  {
+    name: 'Sale',
+    href: '/shop?filter=sale',
+    highlight: true,
+  },
+  {
+    name: 'Brands',
+    href: '/brands',
     megaMenu: true,
     children: [
-      { 
-        name: '🐶 Dog Services',
+      {
+        name: 'Premium Brands',
         items: [
-          { name: 'Dog Walking', href: '/services/dog-walking' },
-          { name: 'Dog Daycare', href: '/services/dog-daycare' },
-          { name: 'Dog Boarding', href: '/services/dog-boarding' },
-          { name: 'Pet Sitting', href: '/services/pet-sitting' },
-          { name: 'Dog Grooming', href: '/services/dog-grooming' },
-          { name: 'Dog Training', href: '/services/dog-training' },
-          { name: 'Pet Taxi', href: '/services/pet-taxi' },
+          { name: 'ADA (Aqua Design Amano)', href: '/shop?brand=ada' },
+          { name: 'Chihiros', href: '/shop?brand=chihiros' },
+          { name: 'SUNSUN', href: '/shop?brand=sunsun' },
+          { name: 'Boyu', href: '/shop?brand=boyu' },
+          { name: 'Fluval', href: '/shop?brand=fluval' },
         ]
       },
-      { 
-        name: '🐱 Cat Services',
+      {
+        name: 'Popular Brands',
         items: [
-          { name: 'Drop-in Visits', href: '/services/cat-visits' },
-          { name: 'Cat Boarding', href: '/services/cat-boarding' },
-          { name: 'Cat Grooming', href: '/services/cat-grooming' },
+          { name: 'Bluepet', href: '/shop?brand=bluepet' },
+          { name: 'Sobo', href: '/shop?brand=sobo' },
+          { name: 'RS Electrical', href: '/shop?brand=rs-electrical' },
+          { name: 'Dophin', href: '/shop?brand=dophin' },
         ]
       },
-      { 
-        name: '📞 Book Now',
+      {
+        name: '📞 Contact',
         items: [
-          { name: 'View All Services', href: '/services' },
+          { name: 'Track Order', href: '/track' },
           { name: 'Call: +91 98765 43210', href: 'tel:+919876543210' },
           { name: 'WhatsApp Us', href: 'https://wa.me/919876543210' },
         ]
       },
     ]
   },
+  {
+    name: 'Pet5',
+    href: '/pet5',
+    highlight: true,
+    megaMenu: true,
+    children: [
+      {
+        name: '🦜 Birds',
+        items: [
+          { name: 'Budgerigar (Budgie)', href: '/pet5?category=birds&species=Budgerigar' },
+          { name: 'Cockatiel', href: '/pet5?category=birds&species=Cockatiel' },
+          { name: 'Lovebird', href: '/pet5?category=birds&species=Lovebird' },
+          { name: 'African Grey', href: '/pet5?category=birds&species=African%20Grey' },
+          { name: 'Rainbow Lorikeet', href: '/pet5?category=birds&species=Lorikeet' },
+          { name: 'View All Birds →', href: '/pet5?category=birds' },
+        ]
+      },
+      {
+        name: '🐠 Freshwater Fish',
+        items: [
+          { name: 'Fancy Guppy', href: '/pet5?category=freshwater-fish&species=Guppy' },
+          { name: 'Betta Fish', href: '/pet5?category=freshwater-fish&species=Betta' },
+          { name: 'Goldfish', href: '/pet5?category=freshwater-fish&species=Goldfish' },
+          { name: 'Discus', href: '/pet5?category=freshwater-fish&species=Discus' },
+          { name: 'Angelfish', href: '/pet5?category=freshwater-fish&species=Angelfish' },
+          { name: 'View All Freshwater →', href: '/pet5?category=freshwater-fish' },
+        ]
+      },
+      {
+        name: '🐟 Marine Fish',
+        items: [
+          { name: 'Clownfish', href: '/pet5?category=marine-fish&species=Clownfish' },
+          { name: 'Yellow/Blue Tang', href: '/pet5?category=marine-fish&species=Tang' },
+          { name: 'Royal Gramma', href: '/pet5?category=marine-fish&species=Basslet' },
+          { name: 'View All Marine →', href: '/pet5?category=marine-fish' },
+        ]
+      },
+      {
+        name: '🔧 Accessories',
+        items: [
+          { name: 'Aquarium Tanks', href: '/pet5?category=accessories' },
+          { name: 'Filters & Heaters', href: '/pet5?category=accessories' },
+          { name: 'LED Lights', href: '/pet5?category=accessories' },
+          { name: 'View All Accessories →', href: '/pet5?category=accessories' },
+        ]
+      },
+    ]
+  },
+  { name: 'Care+', href: '/care' },
   { name: 'About', href: '/about' },
-  { name: 'Blog', href: '/blog' },
 ]
 
 export default function Header() {
@@ -213,22 +269,22 @@ export default function Header() {
   return (
     <>
       {/* Top Bar - Hidden on small mobile, compact on larger */}
-      <div className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-1.5 sm:py-2 text-xs sm:text-sm">
+      <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-500 text-white py-1.5 sm:py-2 text-xs sm:text-sm">
         <div className="container-custom px-3 sm:px-4 flex items-center justify-center sm:justify-between">
           <div className="hidden sm:flex items-center gap-4">
             <span className="flex items-center gap-1">
               <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden md:inline">1800-123-PAWS</span>
+              <span className="hidden md:inline">+91 98765 43210</span>
             </span>
           </div>
-          <motion.span 
+          <motion.span
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="font-medium flex items-center gap-1.5 sm:gap-2 text-center"
           >
             <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse flex-shrink-0" />
             <span className="truncate">Free Shipping Over ₹4,000!</span>
-            <span className="hidden sm:inline">🐾</span>
+            <span className="hidden sm:inline">🐠</span>
           </motion.span>
           <div className="hidden sm:flex items-center gap-4">
             <Link href="/account" className="flex items-center gap-1 hover:underline">
@@ -266,20 +322,20 @@ export default function Header() {
 
             {/* Center: Logo */}
             <Link href="/" className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center"
               >
-                <motion.span 
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                <motion.span
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   className="text-2xl sm:text-3xl"
                 >
-                  🐾
+                  🐠
                 </motion.span>
-                <span className="font-heading font-bold text-xl sm:text-2xl md:text-3xl gradient-text">
-                  BowPaw
+                <span className="font-heading font-bold text-lg sm:text-xl md:text-2xl gradient-text">
+                  Cloning Aqua Pets
                 </span>
               </motion.div>
             </Link>
@@ -448,8 +504,8 @@ export default function Header() {
               {/* Header - Fixed */}
               <div className="flex items-center justify-between p-4 border-b bg-white flex-shrink-0">
                 <Link href="/" onClick={closeMobileMenu} className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl">🐾</span>
-                  <span className="font-heading font-bold text-lg sm:text-xl gradient-text">BowPaw</span>
+                  <span className="text-xl sm:text-2xl">🐠</span>
+                  <span className="font-heading font-bold text-base sm:text-lg gradient-text">Cloning Aqua Pets</span>
                 </Link>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -489,36 +545,36 @@ export default function Header() {
                       </div>
                     </Link>
                     <a
-                      href="tel:1800123PAWS"
+                      href="tel:+919876543210"
                       className="flex items-center gap-3 px-3 py-3 font-medium hover:bg-gray-100 rounded-xl active:scale-[0.98] transition-all"
                     >
-                      <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Phone className="w-5 h-5 text-green-500" />
+                      <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-5 h-5 text-teal-500" />
                       </div>
                       <div className="min-w-0">
                         <span className="block text-dark text-sm font-medium">Call Us</span>
-                        <span className="text-xs text-gray-400">1800-123-PAWS</span>
+                        <span className="text-xs text-gray-400">+91 98765 43210</span>
                       </div>
                     </a>
                   </div>
 
-                  {/* Quick Services */}
+                  {/* Quick Categories */}
                   <div className="mt-6 p-3 sm:p-4 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-semibold text-dark mb-3">Quick Services</p>
+                    <p className="text-xs sm:text-sm font-semibold text-dark mb-3">Quick Categories</p>
                     <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                       {[
-                        { name: 'Walking', icon: '🐕', href: '/services/dog-walking' },
-                        { name: 'Grooming', icon: '✨', href: '/services/dog-grooming' },
-                        { name: 'Boarding', icon: '🏠', href: '/services/dog-boarding' },
-                      ].map((service) => (
+                        { name: 'Live Fish', icon: '🐠', href: '/shop?category=fish' },
+                        { name: 'Tanks', icon: '🏠', href: '/shop?category=tanks' },
+                        { name: 'Plants', icon: '🌿', href: '/shop?category=plants' },
+                      ].map((category) => (
                         <Link
-                          key={service.name}
-                          href={service.href}
+                          key={category.name}
+                          href={category.href}
                           onClick={closeMobileMenu}
                           className="flex flex-col items-center gap-1 p-2 sm:p-3 bg-white rounded-xl hover:shadow-md transition-all active:scale-95"
                         >
-                          <span className="text-xl sm:text-2xl">{service.icon}</span>
-                          <span className="text-[10px] sm:text-xs font-medium text-gray-600">{service.name}</span>
+                          <span className="text-xl sm:text-2xl">{category.icon}</span>
+                          <span className="text-[10px] sm:text-xs font-medium text-gray-600">{category.name}</span>
                         </Link>
                       ))}
                     </div>

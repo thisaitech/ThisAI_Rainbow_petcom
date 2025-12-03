@@ -125,7 +125,7 @@ export default function PetShowcase() {
               nextEl: '.showcase-next',
             }}
             pagination={{ clickable: true, dynamicBullets: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+            autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
             loop={true}
             spaceBetween={20}
             breakpoints={{

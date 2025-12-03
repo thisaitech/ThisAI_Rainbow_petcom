@@ -31,8 +31,9 @@ export default function HeroSlider() {
         speed={1000}
         parallax={true}
         autoplay={{
-          delay: 6000,
+          delay: 5000, // 5 seconds - consistent with all carousels
           disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         }}
         pagination={{
           clickable: true,

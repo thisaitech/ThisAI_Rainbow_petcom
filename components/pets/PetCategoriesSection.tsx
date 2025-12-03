@@ -149,7 +149,7 @@ export default function PetCategoriesSection({
                   nextEl: `.pets-next-${activeCategory}`,
                 }}
                 pagination={{ clickable: true, dynamicBullets: true }}
-                autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
                 grabCursor={true}
                 loop={currentPets.length > 3}
                 spaceBetween={16}

@@ -6,12 +6,49 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": true,
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ],
     "rewrites": [
       {
+        "source": "/shop/**",
+        "destination": "/shop/index.html"
+      },
+      {
+        "source": "/product/**",
+        "destination": "/product/index.html"
+      },
+      {
+        "source": "/pets/**",
+        "destination": "/pets/index.html"
+      },
+      {
+        "source": "/blog/**",
+        "destination": "/blog/index.html"
+      },
+      {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/404.html"
       }
     ]
   }
 }
-

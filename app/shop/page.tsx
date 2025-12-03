@@ -1,581 +1,345 @@
-'use client'
+"use client";
 
-import { useState, useMemo, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Grid, 
-  List, 
-  SlidersHorizontal, 
-  X, 
-  ChevronDown,
-  Search,
-  Sparkles,
-  PawPrint
-} from 'lucide-react'
-import { products, collections } from '@/lib/mockData'
-import ProductCard from '@/components/product/ProductCard'
-import PetCategoriesSection from '@/components/pets/PetCategoriesSection'
-import { cn } from '@/lib/utils'
-import { Product } from '@/types'
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Filter, Grid, Grid3X3, SlidersHorizontal, X } from "lucide-react";
+import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
+import { ProductCard } from "@/components/product-card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import ProductCarousel from "@/components/ui/ProductCarousel";
+import { products, categories } from "@/lib/data";
+import { formatPrice } from "@/lib/utils";
 
-const categories = ['All', 'Dog Food', 'Cat Food', 'Dog Toys', 'Cat Toys', 'Dog Beds', 'Health & Wellness', 'Grooming', 'Treats']
-const petTypes = ['All', 'Dog', 'Cat', 'Bird', 'Fish', 'Small Pet']
-const sortOptions = [
-  { label: 'Featured', value: 'featured' },
-  { label: 'Best Selling', value: 'bestseller' },
-  { label: 'Price: Low to High', value: 'price-asc' },
-  { label: 'Price: High to Low', value: 'price-desc' },
-  { label: 'Newest', value: 'newest' },
-  { label: 'Rating', value: 'rating' },
-]
+export default function ShopPage() {
+  const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
+  const [sortBy, setSortBy] = useState("featured");
+  const [priceRange, setPriceRange] = useState([0, 150000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-function ShopContent() {
-  const searchParams = useSearchParams()
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(searchParams?.get('category') || 'All')
-  const [selectedPetType, setSelectedPetType] = useState('All')
-  const [sortBy, setSortBy] = useState('featured')
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200])
-  const [searchQuery, setSearchQuery] = useState(searchParams?.get('search') || '')
-  const [visibleCount, setVisibleCount] = useState(12)
-
-  // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let result = [...products]
-
-    // Filter by search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.tags.some(t => t.toLowerCase().includes(query))
-      )
-    }
+    let result = [...products];
 
     // Filter by category
-    if (selectedCategory !== 'All') {
-      result = result.filter(p => p.category === selectedCategory)
-    }
-
-    // Filter by pet type
-    if (selectedPetType !== 'All') {
-      const petTypeMap: Record<string, string> = {
-        'Dog': 'dog',
-        'Cat': 'cat',
-        'Bird': 'bird',
-        'Fish': 'fish',
-        'Small Pet': 'small-pet',
-      }
-      const petType = petTypeMap[selectedPetType]
-      result = result.filter(p => p.petType === petType || p.petType === 'all')
+    if (selectedCategories.length > 0) {
+      result = result.filter((p) => selectedCategories.includes(p.category));
     }
 
     // Filter by price
-    result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1])
+    result = result.filter(
+      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
+    );
 
-    // Filter by URL params
-    const filter = searchParams?.get('filter')
-    if (filter === 'bestseller') {
-      result = result.filter(p => p.isBestSeller)
-    } else if (filter === 'new') {
-      result = result.filter(p => p.isNewArrival)
-    } else if (filter === 'sale') {
-      result = result.filter(p => p.isOnSale)
+    // Filter by stock
+    if (inStockOnly) {
+      result = result.filter((p) => p.inStock);
     }
 
     // Sort
     switch (sortBy) {
-      case 'price-asc':
-        result.sort((a, b) => a.price - b.price)
-        break
-      case 'price-desc':
-        result.sort((a, b) => b.price - a.price)
-        break
-      case 'newest':
-        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        break
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating)
-        break
-      case 'bestseller':
-        result.sort((a, b) => (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0))
-        break
+      case "price-low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "name":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "rating":
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      case "newest":
+        result = result.filter((p) => p.isNew).concat(result.filter((p) => !p.isNew));
+        break;
       default:
-        result.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
+        result = result.filter((p) => p.isFeatured).concat(result.filter((p) => !p.isFeatured));
     }
 
-    return result
-  }, [searchQuery, selectedCategory, selectedPetType, priceRange, sortBy, searchParams])
+    return result;
+  }, [selectedCategories, priceRange, inStockOnly, sortBy]);
 
-  const displayedProducts = filteredProducts.slice(0, visibleCount)
-  const hasMore = visibleCount < filteredProducts.length
-
-  const loadMore = () => {
-    setVisibleCount(prev => prev + 12)
-  }
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
 
   const clearFilters = () => {
-    setSelectedCategory('All')
-    setSelectedPetType('All')
-    setPriceRange([0, 200])
-    setSearchQuery('')
-  }
+    setSelectedCategories([]);
+    setPriceRange([0, 150000]);
+    setInStockOnly(false);
+  };
 
-  const hasActiveFilters = selectedCategory !== 'All' || selectedPetType !== 'All' || priceRange[0] !== 0 || priceRange[1] !== 200 || searchQuery
+  const FilterContent = () => (
+    <div className="space-y-6">
+      {/* Categories */}
+      <Accordion type="single" collapsible defaultValue="categories">
+        <AccordionItem value="categories">
+          <AccordionTrigger>Categories</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={category.id}
+                    checked={selectedCategories.includes(category.id)}
+                    onCheckedChange={() => toggleCategory(category.id)}
+                  />
+                  <Label htmlFor={category.id} className="text-sm cursor-pointer">
+                    {category.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* Price Range */}
+      <Accordion type="single" collapsible defaultValue="price">
+        <AccordionItem value="price">
+          <AccordionTrigger>Price Range</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4">
+              <Slider
+                value={priceRange}
+                onValueChange={setPriceRange}
+                min={0}
+                max={150000}
+                step={1000}
+              />
+              <div className="flex items-center justify-between text-sm">
+                <span>{formatPrice(priceRange[0])}</span>
+                <span>{formatPrice(priceRange[1])}</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* Stock */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="inStock"
+          checked={inStockOnly}
+          onCheckedChange={(checked) => setInStockOnly(checked as boolean)}
+        />
+        <Label htmlFor="inStock" className="text-sm cursor-pointer">
+          In Stock Only
+        </Label>
+      </div>
+
+      {/* Clear Filters */}
+      <Button variant="outline" onClick={clearFilters} className="w-full">
+        Clear All Filters
+      </Button>
+    </div>
+  );
+
+  const gridColsClass = {
+    2: "grid-cols-2",
+    3: "grid-cols-2 md:grid-cols-3",
+    4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+    5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  };
 
   return (
-    <div className="min-h-screen bg-light">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 py-8 sm:py-12 md:py-20 relative overflow-hidden">
-        {/* Floating Paw Prints - Fewer on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(4)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ 
-                opacity: [0.1, 0.3, 0.1],
-                y: [-20, -150],
-                rotate: [0, 360]
-              }}
-              transition={{
-                duration: 5 + Math.random() * 3,
-                repeat: Infinity,
-                delay: i * 0.8,
-              }}
-              className="absolute text-white hidden sm:block"
-              style={{ left: `${10 + i * 25}%`, bottom: '10%' }}
-            >
-              <PawPrint className="w-8 h-8 md:w-12 md:h-12" />
-            </motion.div>
-          ))}
-        </div>
+    <main className="min-h-screen">
+      <Navigation />
 
-        <div className="container-custom relative z-10 px-4 sm:px-6">
+      {/* Hero Banner */}
+      <section className="bg-gradient-to-r from-primary to-primary/80 text-white py-12 md:py-20">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center text-white"
+            className="text-center"
           >
-            <motion.span
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4"
-            >
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              Pets + Products Sale 🔥
-            </motion.span>
-            <h1 className="font-heading font-bold text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-2 sm:mb-3">
-              Shop Pets & Products
+            <Badge variant="secondary" className="mb-4">SHOP ALL</Badge>
+            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              All Products
             </h1>
-            <p className="text-white/90 text-sm sm:text-base md:text-xl max-w-2xl mx-auto px-4">
-              Healthy pets ready to join your family + Premium pet supplies
+            <p className="text-white/80 max-w-2xl mx-auto">
+              Discover our complete collection of premium fish, pets, and accessories.
             </p>
-            {/* Pet Category Pills - Scrollable on mobile */}
-            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-4 mt-4 sm:mt-6 text-xs sm:text-sm overflow-x-auto pb-2 px-2 -mx-2 scrollbar-hide">
-              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 rounded-full whitespace-nowrap flex-shrink-0">🐕 Dogs</span>
-              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 rounded-full whitespace-nowrap flex-shrink-0">🐱 Cats</span>
-              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 rounded-full whitespace-nowrap flex-shrink-0">🐰 Rabbits</span>
-              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 rounded-full whitespace-nowrap flex-shrink-0">🐠 Fish</span>
-              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 rounded-full whitespace-nowrap flex-shrink-0">🐦 Birds</span>
-            </div>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* Pet Breeds Section */}
-      <PetCategoriesSection showTitle={true} maxPetsPerCategory={10} />
+      {/* Featured Products - Smooth Drag Carousel */}
+      <ProductCarousel
+        products={products.filter(p => p.isFeatured).slice(0, 8)}
+        variant="smooth"
+        title="✨ Featured Collection"
+        subtitle="Hand-picked premium products for discerning aquarium lovers"
+        accentColor="primary"
+      />
 
-      {/* Divider */}
-      <div className="container-custom px-4 sm:px-6">
-        <div className="border-t border-gray-200 my-4 sm:my-8">
-          <div className="flex items-center justify-center -mt-3">
-            <span className="px-4 bg-light text-gray-500 text-xs sm:text-sm">Pet Supplies & Accessories</span>
-          </div>
-        </div>
-      </div>
+      {/* Hot Deals - Coverflow Style */}
+      <ProductCarousel
+        products={products.filter(p => p.originalPrice).slice(0, 8)}
+        variant="coverflow"
+        title="🔥 Hot Deals"
+        subtitle="Limited time offers - Don't miss out!"
+        showViewAll
+        viewAllLink="/shop?filter=deals"
+        accentColor="coral"
+      />
 
-      <div className="container-custom pb-8 px-4 sm:px-6">
-        {/* Toolbar - Mobile Optimized */}
-        <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {/* Search Bar - Full width on mobile */}
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-9 sm:pl-10 pr-4 py-3 sm:py-2.5 text-base bg-white border rounded-xl focus:outline-none 
-                         focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-            />
-          </div>
+      {/* New Arrivals - Smooth Scroll Carousel */}
+      <ProductCarousel
+        products={products.filter(p => p.isNew).slice(0, 10)}
+        variant="smooth"
+        title="New Arrivals"
+        subtitle="Fresh drops just for you"
+        showViewAll
+        viewAllLink="/shop?filter=new"
+        accentColor="accent"
+      />
 
-          {/* Filter & Sort Row */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile Filter Toggle */}
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 bg-white rounded-xl border shadow-sm text-sm font-medium active:scale-95 transition-transform"
-            >
-              <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>Filters</span>
-              {hasActiveFilters && (
-                <span className="w-2 h-2 bg-primary-500 rounded-full" />
-              )}
-            </button>
+      {/* Shop Content */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+              <div className="sticky top-24 bg-card rounded-xl border p-6">
+                <h2 className="font-semibold mb-4 flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filters
+                </h2>
+                <FilterContent />
+              </div>
+            </aside>
 
-            {/* Sort Dropdown */}
-            <div className="relative flex-1 sm:flex-none">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none w-full sm:w-auto px-3 sm:px-4 py-2.5 pr-8 sm:pr-10 bg-white border rounded-xl 
-                           focus:outline-none focus:border-primary-500 cursor-pointer text-sm"
-              >
-                {sortOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            </div>
+            {/* Main Content */}
+            <div className="flex-1">
+              {/* Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  {/* Mobile Filter Button */}
+                  <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" className="lg:hidden">
+                        <Filter className="w-4 h-4 mr-2" />
+                        Filters
+                        {selectedCategories.length > 0 && (
+                          <Badge variant="secondary" className="ml-2">
+                            {selectedCategories.length}
+                          </Badge>
+                        )}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[80vh]">
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-4 overflow-y-auto h-full pb-20">
+                        <FilterContent />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
 
-            {/* View Toggle - Hidden on mobile */}
-            <div className="hidden md:flex items-center bg-white border rounded-xl overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={cn(
-                  'p-2.5 transition-colors',
-                  viewMode === 'grid' ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'
-                )}
-                aria-label="Grid view"
-              >
-                <Grid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  'p-2.5 transition-colors',
-                  viewMode === 'list' ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'
-                )}
-                aria-label="List view"
-              >
-                <List className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+                  <p className="text-sm text-muted-foreground">
+                    {filteredProducts.length} products
+                  </p>
+                </div>
 
-          {/* Active Filters - Mobile Pills */}
-          {hasActiveFilters && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide md:hidden">
-              {selectedCategory !== 'All' && (
-                <button
-                  onClick={() => setSelectedCategory('All')}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-primary-100 text-primary-600 rounded-full text-xs font-medium whitespace-nowrap"
-                >
-                  {selectedCategory}
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-              {selectedPetType !== 'All' && (
-                <button
-                  onClick={() => setSelectedPetType('All')}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-primary-100 text-primary-600 rounded-full text-xs font-medium whitespace-nowrap"
-                >
-                  {selectedPetType}
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-              <button
-                onClick={clearFilters}
-                className="text-xs text-gray-500 hover:text-primary-500 whitespace-nowrap"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
-        </div>
+                <div className="flex items-center gap-2">
+                  {/* Grid Toggle */}
+                  <div className="hidden md:flex items-center border rounded-lg">
+                    <button
+                      onClick={() => setGridCols(2)}
+                      className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setGridCols(4)}
+                      className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                    </button>
+                  </div>
 
-        <div className="flex gap-8">
-          {/* Sidebar Filters - Desktop */}
-          <aside className="hidden md:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl p-6 sticky top-24">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-heading font-bold text-lg">Filters</h3>
-                {hasActiveFilters && (
-                  <button
+                  {/* Sort */}
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="featured">Featured</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Top Rated</SelectItem>
+                      <SelectItem value="name">Name</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Active Filters */}
+              {selectedCategories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {selectedCategories.map((cat) => (
+                    <Badge
+                      key={cat}
+                      variant="outline"
+                      className="cursor-pointer hover:bg-muted"
+                      onClick={() => toggleCategory(cat)}
+                    >
+                      {categories.find((c) => c.id === cat)?.name}
+                      <X className="w-3 h-3 ml-1" />
+                    </Badge>
+                  ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={clearFilters}
-                    className="text-sm text-primary-500 hover:underline"
+                    className="text-xs"
                   >
                     Clear all
-                  </button>
-                )}
-              </div>
+                  </Button>
+                </div>
+              )}
 
-              {/* Category Filter */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-3">Category</h4>
-                <div className="space-y-2">
-                  {categories.map(category => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={cn(
-                        'block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
-                        selectedCategory === category
-                          ? 'bg-primary-100 text-primary-500 font-medium'
-                          : 'hover:bg-gray-100'
-                      )}
-                    >
-                      {category}
-                    </button>
+              {/* Product Grid */}
+              <div className={`grid ${gridColsClass[gridCols]} gap-4 md:gap-6`}>
+                <AnimatePresence>
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
                   ))}
-                </div>
+                </AnimatePresence>
               </div>
 
-              {/* Pet Type Filter */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-3">Pet Type</h4>
-                <div className="space-y-2">
-                  {petTypes.map(type => (
-                    <button
-                      key={type}
-                      onClick={() => setSelectedPetType(type)}
-                      className={cn(
-                        'block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
-                        selectedPetType === type
-                          ? 'bg-primary-100 text-primary-500 font-medium'
-                          : 'hover:bg-gray-100'
-                      )}
-                    >
-                      {type}
-                    </button>
-                  ))}
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No products found matching your criteria.</p>
+                  <Button variant="outline" onClick={clearFilters} className="mt-4">
+                    Clear Filters
+                  </Button>
                 </div>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <h4 className="font-semibold mb-3">Price Range</h4>
-                <div className="px-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="200"
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                    className="w-full accent-primary-500"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-2">
-                    <span>$0</span>
-                    <span>${priceRange[1]}</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
-          </aside>
-
-          {/* Product Grid */}
-          <div className="flex-1">
-            {/* Results Count - Mobile */}
-            <p className="text-xs sm:text-sm text-gray-500 mb-4">
-              {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
-            </p>
-
-            {displayedProducts.length === 0 ? (
-              <div className="text-center py-12 sm:py-16">
-                <span className="text-5xl sm:text-6xl mb-4 block">🔍</span>
-                <h3 className="font-heading font-bold text-lg sm:text-xl mb-2">No products found</h3>
-                <p className="text-gray-500 text-sm sm:text-base mb-4">Try adjusting your filters or search query</p>
-                <button
-                  onClick={clearFilters}
-                  className="btn-primary text-sm sm:text-base active:scale-95"
-                >
-                  <span>Clear Filters</span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <motion.div
-                  layout
-                  className={cn(
-                    viewMode === 'grid'
-                      ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6'
-                      : 'space-y-3 sm:space-y-4'
-                  )}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {displayedProducts.map((product, index) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        index={index}
-                        variant={viewMode === 'list' ? 'horizontal' : 'default'}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-
-                {/* Load More */}
-                {hasMore && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center mt-8 sm:mt-12"
-                  >
-                    <button
-                      onClick={loadMore}
-                      className="btn-secondary text-sm sm:text-base py-3 px-6 active:scale-95"
-                    >
-                      Load More ({filteredProducts.length - visibleCount} remaining)
-                    </button>
-                  </motion.div>
-                )}
-              </>
-            )}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Mobile Filter Sidebar - Bottom Sheet Style */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] md:hidden"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed inset-x-0 bottom-0 bg-white z-[60] md:hidden rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col"
-              style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-            >
-              {/* Drag Handle */}
-              <div className="flex justify-center pt-3 pb-1">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-              </div>
-
-              {/* Header */}
-              <div className="px-4 py-3 border-b flex items-center justify-between sticky top-0 bg-white">
-                <h3 className="font-heading font-bold text-lg">Filters</h3>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full active:scale-90"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-4 py-4">
-                {/* Category Filter */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-3 text-sm text-gray-700">Category</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {categories.map(category => (
-                      <button
-                        key={category}
-                        onClick={() => setSelectedCategory(category)}
-                        className={cn(
-                          'px-3 py-2.5 rounded-xl text-sm transition-all active:scale-95 text-left',
-                          selectedCategory === category
-                            ? 'bg-primary-500 text-white font-medium shadow-md'
-                            : 'bg-gray-100 hover:bg-gray-200'
-                        )}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Pet Type Filter */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-3 text-sm text-gray-700">Pet Type</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {petTypes.map(type => (
-                      <button
-                        key={type}
-                        onClick={() => setSelectedPetType(type)}
-                        className={cn(
-                          'px-4 py-2 rounded-full text-sm transition-all active:scale-95',
-                          selectedPetType === type
-                            ? 'bg-primary-500 text-white font-medium shadow-md'
-                            : 'bg-gray-100 hover:bg-gray-200'
-                        )}
-                      >
-                        {type === 'Dog' && '🐕 '}
-                        {type === 'Cat' && '🐱 '}
-                        {type === 'Bird' && '🐦 '}
-                        {type === 'Fish' && '🐠 '}
-                        {type === 'Small Pet' && '🐰 '}
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price Range */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-3 text-sm text-gray-700">Price Range</h4>
-                  <div className="px-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="200"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                      className="w-full accent-primary-500 h-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-600 mt-2">
-                      <span>₹0</span>
-                      <span className="font-medium text-primary-500">Up to ₹{(priceRange[1] * 83).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer Actions */}
-              <div className="px-4 py-4 border-t bg-white flex gap-3">
-                <button
-                  onClick={() => {
-                    clearFilters()
-                  }}
-                  className="flex-1 py-3 px-4 border-2 border-gray-200 rounded-xl font-medium text-gray-700 active:scale-95"
-                >
-                  Clear All
-                </button>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="flex-1 py-3 px-4 bg-primary-500 text-white rounded-xl font-medium active:scale-95"
-                >
-                  Apply Filters
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
-  )
+      <Footer />
+    </main>
+  );
 }
-
-export default function ShopPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-light flex items-center justify-center">Loading...</div>}>
-      <ShopContent />
-    </Suspense>
-  )
-}
-

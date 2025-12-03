@@ -18,10 +18,10 @@ import {
 const footerLinks = {
   shop: [
     { name: 'All Products', href: '/shop' },
-    { name: 'Dogs', href: '/shop?pet=dog' },
-    { name: 'Cats', href: '/shop?pet=cat' },
-    { name: 'Best Sellers', href: '/shop?filter=bestseller' },
-    { name: 'New Arrivals', href: '/shop?filter=new' },
+    { name: 'Live Fish', href: '/shop?category=fish' },
+    { name: 'Aquarium Tanks', href: '/shop?category=tanks' },
+    { name: 'Filters & Pumps', href: '/shop?category=filters' },
+    { name: 'Plants & Decor', href: '/shop?category=plants' },
     { name: 'Sale', href: '/shop?filter=sale' },
   ],
   support: [
@@ -33,10 +33,9 @@ const footerLinks = {
   ],
   company: [
     { name: 'About Us', href: '/about' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Care Guide', href: '/care' },
     { name: 'Careers', href: '/careers' },
-    { name: 'Press', href: '/press' },
-    { name: 'Sustainability', href: '/sustainability' },
+    { name: 'Our Brands', href: '/brands' },
   ],
   legal: [
     { name: 'Privacy Policy', href: '/privacy' },
@@ -64,12 +63,12 @@ export default function Footer() {
 
   return (
     <footer className="relative bg-dark text-white overflow-hidden">
-      {/* Decorative Paw Prints */}
+      {/* Decorative Bubbles */}
       <Parallax speed={-5} className="absolute top-20 left-10 opacity-5">
-        <span className="text-[200px]">🐾</span>
+        <span className="text-[200px]">🫧</span>
       </Parallax>
       <Parallax speed={-10} className="absolute bottom-40 right-10 opacity-5">
-        <span className="text-[150px]">🐾</span>
+        <span className="text-[150px]">🐠</span>
       </Parallax>
 
       {/* Newsletter Section */}
@@ -78,10 +77,10 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <h3 className="font-heading font-bold text-2xl md:text-3xl mb-2">
-                Join Our Pack! 🐾
+                Dive Into Savings! 🐠
               </h3>
               <p className="text-gray-400">
-                Subscribe for exclusive deals, pet care tips & 15% off your first order
+                Subscribe for exclusive deals, aquarium care tips & 15% off your first order
               </p>
             </div>
             <form className="flex w-full md:w-auto gap-2">
@@ -110,25 +109,25 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <span className="text-3xl">🐾</span>
-              <span className="font-heading font-bold text-2xl gradient-text">BowPaw</span>
+              <span className="text-3xl">🐠</span>
+              <span className="font-heading font-bold text-2xl gradient-text">Cloning Aqua Pets</span>
             </Link>
             <p className="text-gray-400 mb-6 max-w-xs">
-              Premium pet supplies for your furry family members. Quality products, 
-              happy pets, satisfied owners.
+              Premium aquarium supplies for your aquatic companions. Quality products,
+              healthy fish, happy hobbyists.
             </p>
             <div className="space-y-3 text-sm text-gray-400">
-              <a href="tel:1800-123-PAWS" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Phone className="w-4 h-4" />
-                1800-123-PAWS (Toll Free)
+                +91 98765 43210
               </a>
-              <a href="mailto:support@bowpaw.in" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="mailto:info@cloningaquapets.com" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-4 h-4" />
-                support@bowpaw.in
+                info@cloningaquapets.com
               </a>
               <p className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                123 Pet Street, Andheri West, Mumbai 400058
+                Salem, Tamil Nadu, India
               </p>
             </div>
           </div>
@@ -230,7 +229,7 @@ export default function Footer() {
 
             {/* Copyright */}
             <p className="text-gray-400 text-sm text-center">
-              © {new Date().getFullYear()} BowPaw. All rights reserved. Made with ❤️ for pets
+              © {new Date().getFullYear()} Cloning Aqua Pets. All rights reserved. Made with 💙 for aquarists
             </p>
 
             {/* Payment Methods */}

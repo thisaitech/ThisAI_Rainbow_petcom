@@ -1,17 +1,21 @@
-import { products } from '@/lib/mockData'
-import ProductDetailClient from '@/components/product/ProductDetailClient'
+import { products } from "@/lib/data";
+import { birdsAndFishProducts } from "@/lib/birdsAndFishData";
+import ProductPageClient from "@/components/product/ProductPageClient";
 
-// Generate static params for all products
+// Generate static params for all products (including birds & fish)
 export function generateStaticParams() {
-  return products.map((product) => ({
+  // Combine all products from both data sources
+  const allProducts = [...products, ...birdsAndFishProducts];
+  
+  return allProducts.map((product) => ({
     slug: product.slug,
-  }))
+  }));
 }
 
 interface PageProps {
-  params: { slug: string }
+  params: { slug: string };
 }
 
 export default function ProductPage({ params }: PageProps) {
-  return <ProductDetailClient slug={params.slug} />
+  return <ProductPageClient slug={params.slug} />;
 }

@@ -9,8 +9,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    // 5 seconds loading duration
-    const duration = 5000
+    const duration = 2500
     const startTime = Date.now()
     
     const updateProgress = () => {
@@ -21,239 +20,217 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
       if (newProgress < 100) {
         requestAnimationFrame(updateProgress)
       } else {
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 300)
+        setTimeout(() => setIsLoading(false), 300)
       }
     }
 
     requestAnimationFrame(updateProgress)
-
-    return () => {}
   }, [])
 
-  // Ensure video plays
+  // Auto-play video
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch(() => {})
     }
   }, [])
 
-  // Letters for animation
-  const letters = ['b', 'o', 'w', 'p', 'a', 'w']
+  const rainbowColors = ['#FF6B6B', '#FF9F43', '#FECA57', '#48DBFB', '#0ABDE3', '#1DD1A1']
+  const aquaColors = ['#00D2D3', '#01A3A4', '#0097A7', '#00838F']
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      {children}
+      
+      <AnimatePresence>
         {isLoading && (
           <motion.div
-            key="initial-loader"
+            key="loader"
             initial={{ opacity: 1 }}
-            exit={{ 
-              opacity: 0,
-              scale: 1.1,
-              transition: { duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }
-            }}
-            className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center overflow-hidden"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden"
           >
-            {/* Video Loader */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ 
-                scale: 1, 
-                opacity: 1,
-                transition: { duration: 0.5, ease: 'easeOut' }
-              }}
-              className="relative mb-8"
-            >
-              {/* Video Container */}
-              <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-72 md:h-72 relative flex items-center justify-center">
-                <video
-                  ref={videoRef}
-                  src="/videos/dog-loader-final.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-contain"
-                />
-              </div>
-
-              {/* Decorative elements around video */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-0 pointer-events-none"
+            {/* Background Video */}
+            <div className="absolute inset-0 overflow-hidden">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ opacity: 0.15 }}
               >
-                {[...Array(8)].map((_, i) => (
-                  <motion.div
+                <source src="/videos/rinbow-loader-bird.mp4" type="video/mp4" />
+              </video>
+              {/* White overlay for better text readability */}
+              <div className="absolute inset-0 bg-white/60" />
+            </div>
+
+            {/* Center Content */}
+            <div className="relative z-10 flex flex-col items-center justify-center">
+
+              {/* RINBOW */}
+              <motion.div 
+                className="flex items-center justify-center mb-1"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+              >
+                {['R', 'i', 'n', 'b', 'o', 'w'].map((letter, i) => (
+                  <motion.span
                     key={i}
-                    className="absolute w-3 h-3 bg-green-500 rounded-full"
-                    style={{
-                      top: '50%',
-                      left: '50%',
-                      transform: `rotate(${i * 45}deg) translateY(-100px) translateX(-50%)`,
-                      opacity: 0.3 + (i * 0.08),
-                    }}
-                  />
+                    className="font-bold text-3xl sm:text-4xl md:text-5xl drop-shadow-sm"
+                    style={{ color: rainbowColors[i] }}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.05 }}
+                  >
+                    {letter}
+                  </motion.span>
                 ))}
               </motion.div>
-              
-              {/* Floating paw prints around video */}
-              {[...Array(4)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ 
-                    y: [0, -10, 0],
-                    opacity: [0.3, 0.6, 0.3],
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: i * 0.5,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute"
-                  style={{
-                    top: `${20 + (i % 2) * 60}%`,
-                    left: i < 2 ? '-25px' : 'auto',
-                    right: i >= 2 ? '-25px' : 'auto',
-                  }}
-                >
-                  <svg viewBox="0 0 60 60" className="w-6 h-6 text-green-400" fill="currentColor">
-                    <ellipse cx="30" cy="38" rx="14" ry="12" />
-                    <circle cx="18" cy="22" r="7" />
-                    <circle cx="42" cy="22" r="7" />
-                    <circle cx="12" cy="34" r="6" />
-                    <circle cx="48" cy="34" r="6" />
-                  </svg>
-                </motion.div>
-              ))}
-            </motion.div>
 
-            {/* Animated Brand Name */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ 
-                opacity: 1, 
-                y: 0,
-                transition: { delay: 0.3, duration: 0.5 }
-              }}
-              className="flex items-center justify-center mb-6"
-            >
-              {letters.map((letter, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, y: 30, rotateX: -90 }}
+              {/* AQUA */}
+              <motion.div 
+                className="flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                {['A', 'q', 'u', 'a'].map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    className="font-semibold text-lg sm:text-xl md:text-2xl tracking-[0.2em]"
+                    style={{ color: aquaColors[i] }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 + i * 0.05 }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </motion.div>
+
+              {/* Tagline */}
+              <motion.p
+                className="text-gray-400 text-xs sm:text-sm mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                Your Premium Pet Paradise
+              </motion.p>
+
+              {/* Progress Bar with Parrot */}
+              <motion.div 
+                className="relative w-48 sm:w-56 mt-5"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                {/* Flying Parrot that sits on progress bar */}
+                <motion.div
+                  className="absolute -top-6 sm:-top-7 z-10"
+                  style={{ 
+                    left: `calc(${Math.min(progress, 95)}% - 12px)`,
+                    transition: 'left 0.1s linear'
+                  }}
+                  initial={{ opacity: 0, y: -30, x: -50 }}
                   animate={{ 
                     opacity: 1, 
                     y: 0, 
-                    rotateX: 0,
-                    transition: {
-                      delay: 0.5 + i * 0.1,
-                      duration: 0.4,
-                      ease: [0.215, 0.61, 0.355, 1],
-                    }
+                    x: 0,
+                    rotate: progress < 100 ? [0, -5, 5, 0] : 0
                   }}
-                  className={`font-heading font-bold text-4xl sm:text-5xl md:text-6xl inline-block ${
-                    i < 3 ? 'text-gray-900' : 'text-green-500'
-                  }`}
-                  style={{ 
-                    display: 'inline-block',
-                    transformStyle: 'preserve-3d',
+                  transition={{ 
+                    opacity: { delay: 0.3, duration: 0.3 },
+                    y: { delay: 0.3, duration: 0.5, type: 'spring', bounce: 0.4 },
+                    x: { delay: 0.3, duration: 0.5 },
+                    rotate: { duration: 0.5, repeat: Infinity, ease: 'easeInOut' }
                   }}
                 >
-                  {letter}
-                </motion.span>
-              ))}
-            </motion.div>
-
-            {/* Loading text */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ 
-                opacity: 1,
-                transition: { delay: 1, duration: 0.5 }
-              }}
-              className="text-gray-500 text-sm mb-6"
-            >
-              Loading your pet paradise...
-            </motion.p>
-
-            {/* Progress Bar */}
-            <motion.div 
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ 
-                opacity: 1, 
-                width: '200px',
-                transition: { delay: 0.8, duration: 0.3 }
-              }}
-              className="relative h-2 bg-gray-100 rounded-full overflow-hidden"
-            >
-              <motion.div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 via-green-400 to-green-500 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
-              {/* Shimmer effect */}
-              <motion.div
-                animate={{ x: ['-100%', '200%'] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-              />
-            </motion.div>
-
-            {/* Progress percentage */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ 
-                opacity: 1,
-                transition: { delay: 1, duration: 0.5 }
-              }}
-              className="text-green-500 font-bold text-lg mt-3"
-            >
-              {Math.round(progress)}%
-            </motion.p>
-
-            {/* Decorative paw prints */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ 
-                    opacity: 0.05, 
-                    scale: 1,
-                    transition: { delay: 0.3 + i * 0.15, duration: 0.5 }
-                  }}
-                  className="absolute"
-                  style={{
-                    left: `${10 + i * 12}%`,
-                    top: `${15 + (i % 4) * 20}%`,
-                    transform: `rotate(${-45 + i * 25}deg)`,
-                  }}
-                >
-                  <svg viewBox="0 0 60 60" className="w-12 h-12 sm:w-16 sm:h-16 text-green-500" fill="currentColor">
-                    <ellipse cx="30" cy="38" rx="14" ry="12" />
-                    <circle cx="18" cy="22" r="7" />
-                    <circle cx="42" cy="22" r="7" />
-                    <circle cx="12" cy="34" r="6" />
-                    <circle cx="48" cy="34" r="6" />
-                  </svg>
+                  <span className="text-xl sm:text-2xl drop-shadow-md" style={{ display: 'inline-block' }}>
+                    🦜
+                  </span>
+                  {/* Wing flap effect */}
+                  {progress < 100 && (
+                    <motion.span
+                      className="absolute -right-1 top-1 text-xs opacity-50"
+                      animate={{ opacity: [0.3, 0.7, 0.3], scale: [0.8, 1.1, 0.8] }}
+                      transition={{ duration: 0.3, repeat: Infinity }}
+                    >
+                      ✨
+                    </motion.span>
+                  )}
                 </motion.div>
-              ))}
+
+                {/* Progress Bar Line (Branch) */}
+                <div className="h-2 bg-gradient-to-r from-amber-100 via-amber-200 to-amber-100 rounded-full shadow-inner border border-amber-300/50">
+                  <div
+                    className="h-full rounded-full relative"
+                    style={{ 
+                      width: `${progress}%`,
+                      background: 'linear-gradient(90deg, #FF6B6B, #FF9F43, #FECA57, #48DBFB, #0ABDE3, #1DD1A1)',
+                      transition: 'width 0.1s linear',
+                      boxShadow: '0 0 10px rgba(14, 165, 233, 0.4)'
+                    }}
+                  />
+                </div>
+
+                {/* Little leaves on the branch */}
+                <div className="absolute -left-2 top-0 text-[8px] opacity-60">🌿</div>
+                <div className="absolute -right-2 top-0 text-[8px] opacity-60 scale-x-[-1]">🌿</div>
+              </motion.div>
+
+              <motion.p 
+                className="text-gray-400 text-xs mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                {Math.round(progress)}%
+              </motion.p>
+
+              {/* Flying birds in background */}
+              <motion.div 
+                className="flex items-center gap-3 mt-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9 }}
+              >
+                {['🐠', '🐦', '🐟', '🦅', '🐡'].map((emoji, i) => (
+                  <motion.span
+                    key={i}
+                    className="text-base sm:text-lg"
+                    animate={{ 
+                      y: [0, -6, 0],
+                      x: emoji === '🐦' || emoji === '🦅' ? [0, 3, 0] : 0
+                    }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+                  >
+                    {emoji}
+                  </motion.span>
+                ))}
+              </motion.div>
             </div>
+
+            {/* Footer */}
+            <motion.a
+              href="https://www.thisaitech.com/"
+              target="_blank"
+              rel="noopener noreferrer" 
+              className="absolute bottom-3 text-gray-300 text-[10px] sm:text-xs hover:text-cyan-400 transition-colors"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.1 }}
+            >
+              Powered by ThisAI Technologies
+            </motion.a>
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isLoading ? 0 : 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        {children}
-      </motion.div>
     </>
   )
 }

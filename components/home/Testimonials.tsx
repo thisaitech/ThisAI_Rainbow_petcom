@@ -64,7 +64,7 @@ export default function Testimonials() {
             modules={[Autoplay, Pagination]}
             spaceBetween={30}
             autoplay={{
-              delay: 6000,
+              delay: 5000, // 5 seconds - consistent with all carousels
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }}

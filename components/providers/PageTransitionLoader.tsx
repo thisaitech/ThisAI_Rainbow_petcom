@@ -12,24 +12,19 @@ export default function PageTransitionLoader() {
   const isFirstLoad = useRef(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  const rainbowColors = ['#FF6B6B', '#FF9F43', '#FECA57', '#48DBFB', '#0ABDE3', '#1DD1A1']
+  const aquaColors = ['#00D2D3', '#01A3A4', '#0097A7', '#00838F']
+
   useEffect(() => {
-    // Skip the very first load (initial loader handles that)
     if (isFirstLoad.current) {
       isFirstLoad.current = false
       return
     }
 
-    // Show loader on route change
     setIsLoading(true)
     setProgress(0)
 
-    // Play video
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0
-      videoRef.current.play().catch(() => {})
-    }
-
-    const duration = 1500 // 1.5 seconds for page transitions
+    const duration = 800
     const startTime = Date.now()
 
     const updateProgress = () => {
@@ -40,133 +35,150 @@ export default function PageTransitionLoader() {
       if (newProgress < 100) {
         requestAnimationFrame(updateProgress)
       } else {
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 200)
+        setTimeout(() => setIsLoading(false), 100)
       }
     }
 
     requestAnimationFrame(updateProgress)
   }, [pathname, searchParams])
 
-  // Letters for animation
-  const letters = ['b', 'o', 'w', 'p', 'a', 'w']
+  // Auto-play video when loading
+  useEffect(() => {
+    if (isLoading && videoRef.current) {
+      videoRef.current.currentTime = 0
+      videoRef.current.play().catch(() => {})
+    }
+  }, [isLoading])
 
   return (
     <AnimatePresence>
       {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ 
-            opacity: 0,
-            transition: { duration: 0.3, ease: 'easeOut' }
-          }}
-          className="fixed inset-0 z-[9998] bg-white flex flex-col items-center justify-center"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[9998] bg-white flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Progress bar at top */}
-          <div className="fixed top-0 left-0 right-0 h-1.5 bg-gray-100 z-10">
-            <motion.div
-              className="h-full bg-gradient-to-r from-green-500 via-green-400 to-green-500"
-              style={{ width: `${progress}%` }}
-            />
-            {/* Shimmer */}
-            <motion.div
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-            />
+          {/* Background Video */}
+          <div className="absolute inset-0 overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ opacity: 0.12 }}
+            >
+              <source src="/videos/rinbow-loader-bird.mp4" type="video/mp4" />
+            </video>
+            {/* White overlay for better text readability */}
+            <div className="absolute inset-0 bg-white/70" />
           </div>
 
-          {/* Video Loader */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ 
-              scale: 1, 
-              opacity: 1,
-              transition: { duration: 0.3 }
-            }}
-            className="relative mb-6"
-          >
-            {/* Video Container */}
-            <div className="w-36 h-36 sm:w-40 sm:h-40 relative flex items-center justify-center">
-              <video
-                ref={videoRef}
-                src="/videos/dog-loader-final.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-contain"
-              />
-            </div>
-            
-            {/* Rotating dots around video */}
+          {/* Top Progress bar with Flying Parrot */}
+          <div className="fixed top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-50 via-gray-100 to-amber-50 z-10">
+            {/* Progress fill */}
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 pointer-events-none"
+              className="h-full relative"
+              style={{ 
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, #FF6B6B, #FF9F43, #FECA57, #48DBFB, #0ABDE3, #1DD1A1)',
+                boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)'
+              }}
+            />
+            
+            {/* Flying Parrot sitting on progress bar */}
+            <motion.div
+              className="absolute top-0 z-20"
+              style={{ 
+                left: `calc(${Math.min(progress, 98)}% - 10px)`,
+                transition: 'left 0.05s linear'
+              }}
+              initial={{ opacity: 0, y: -20, rotate: -30 }}
+              animate={{ 
+                opacity: 1, 
+                y: -2,
+                rotate: progress < 100 ? [-5, 5, -5] : 0
+              }}
+              transition={{ 
+                opacity: { duration: 0.2 },
+                y: { duration: 0.3, type: 'spring' },
+                rotate: { duration: 0.4, repeat: Infinity }
+              }}
             >
-              {[...Array(6)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 bg-green-500 rounded-full"
-                  style={{
-                    top: '50%',
-                    left: '50%',
-                    transform: `rotate(${i * 60}deg) translateY(-65px) translateX(-50%)`,
-                    opacity: 0.4 + (i * 0.1),
-                  }}
-                />
-              ))}
+              <span className="text-lg drop-shadow-sm">🦜</span>
+              {/* Sparkle trail */}
+              {progress > 10 && progress < 100 && (
+                <motion.span
+                  className="absolute -left-2 top-1 text-[8px]"
+                  animate={{ opacity: [0.5, 1, 0.5], scale: [0.8, 1, 0.8] }}
+                  transition={{ duration: 0.25, repeat: Infinity }}
+                >
+                  ✨
+                </motion.span>
+              )}
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Brand Name */}
           <motion.div
+            className="text-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
-            className="flex items-center"
+            transition={{ delay: 0.1 }}
           >
-            {letters.map((letter, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { delay: 0.1 + i * 0.05 }
-                }}
-                className={`font-heading font-bold text-2xl sm:text-3xl ${
-                  i < 3 ? 'text-gray-900' : 'text-green-500'
-                }`}
-              >
-                {letter}
-              </motion.span>
-            ))}
+            <div className="flex items-center justify-center">
+              {['R', 'i', 'n', 'b', 'o', 'w'].map((letter, i) => (
+                <motion.span
+                  key={i}
+                  className="font-bold text-xl sm:text-2xl"
+                  style={{ color: rainbowColors[i] }}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.02 }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+              <span className="mx-0.5" />
+              {['A', 'q', 'u', 'a'].map((letter, i) => (
+                <motion.span
+                  key={i}
+                  className="font-semibold text-xl sm:text-2xl tracking-wide"
+                  style={{ color: aquaColors[i] }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 + i * 0.02 }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </div>
           </motion.div>
 
-          {/* Loading dots */}
+          {/* Bouncing icons */}
           <motion.div
+            className="flex items-center gap-2 mt-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="flex items-center gap-1.5 mt-4"
+            transition={{ delay: 0.15 }}
           >
-            {[0, 1, 2].map((i) => (
-              <motion.div
+            {['🐠', '🐦', '🐟', '🦜', '🐡'].map((emoji, i) => (
+              <motion.span
                 key={i}
-                animate={{
-                  y: [-3, 3, -3],
-                  opacity: [0.4, 1, 0.4],
-                }}
+                className="text-lg"
+                animate={{ y: [0, -5, 0] }}
                 transition={{
-                  duration: 0.8,
+                  duration: 0.6,
                   repeat: Infinity,
-                  delay: i * 0.15,
+                  delay: i * 0.1,
+                  ease: 'easeInOut'
                 }}
-                className="w-2 h-2 bg-green-500 rounded-full"
-              />
+              >
+                {emoji}
+              </motion.span>
             ))}
           </motion.div>
         </motion.div>

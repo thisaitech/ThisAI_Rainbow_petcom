@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Home, 
-  Search, 
-  Heart, 
-  ShoppingCart, 
+import {
+  Home,
+  Search,
+  Heart,
+  ShoppingCart,
   User,
   Grid3X3,
-  PawPrint
+  Fish
 } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { useWishlistStore } from '@/store/useWishlistStore'
@@ -171,20 +171,20 @@ export default function MobileBottomNav() {
             })}
           </div>
           
-          {/* Floating paw accent */}
+          {/* Floating fish accent */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3 }}
             className="absolute -top-6 left-1/2 -translate-x-1/2"
           >
-            <Link href="/services">
+            <Link href="/shop?category=live-fish">
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-14 h-14 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/30"
+                className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30"
               >
-                <PawPrint className="w-7 h-7 text-white" />
+                <Fish className="w-7 h-7 text-white" />
               </motion.div>
             </Link>
           </motion.div>

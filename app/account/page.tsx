@@ -1,290 +1,290 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
-import { 
-  User, Package, Heart, LogOut, ShoppingBag,
-  MapPin, Phone, Mail, Edit2, ChevronRight,
-  Clock, Truck, CheckCircle, XCircle
-} from 'lucide-react'
-import { useAuthStore, Order } from '@/store/useAuthStore'
-import { formatPrice } from '@/lib/utils'
-import Link from 'next/link'
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  User,
+  Package,
+  Heart,
+  MapPin,
+  Settings,
+  LogOut,
+  ChevronRight,
+  ShoppingBag,
+  CreditCard,
+  Bell,
+  Shield,
+  Edit,
+  Camera
+} from "lucide-react";
+import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Sample user data
+const sampleUser = {
+  name: "Guest User",
+  email: "guest@example.com",
+  phone: "+91 98765 43210",
+  avatar: null,
+  memberSince: "December 2024",
+  district: "Chennai",
+};
+
+const menuItems = [
+  { icon: Package, label: "My Orders", href: "/account/orders", badge: "3" },
+  { icon: Heart, label: "Wishlist", href: "/account/wishlist", badge: "5" },
+  { icon: MapPin, label: "Addresses", href: "/account/addresses" },
+  { icon: CreditCard, label: "Payment Methods", href: "/account/payments" },
+  { icon: Bell, label: "Notifications", href: "/account/notifications" },
+  { icon: Shield, label: "Security", href: "/account/security" },
+  { icon: Settings, label: "Settings", href: "/account/settings" },
+];
+
+const recentOrders = [
+  { id: "ORD-001", product: "Betta Fish - Halfmoon", status: "Delivered", date: "Dec 1, 2024", amount: "₹1,499" },
+  { id: "ORD-002", product: "Aquarium Tank 50L", status: "Shipped", date: "Nov 28, 2024", amount: "₹4,999" },
+  { id: "ORD-003", product: "Goldfish - Oranda", status: "Processing", date: "Nov 25, 2024", amount: "₹899" },
+];
+
+const statusColors: Record<string, string> = {
+  "Delivered": "bg-green-100 text-green-700",
+  "Shipped": "bg-blue-100 text-blue-700",
+  "Processing": "bg-yellow-100 text-yellow-700",
+};
 
 export default function AccountPage() {
-  const router = useRouter()
-  const { currentUser, isAuthenticated, logout, getMyOrders } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('orders')
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(sampleUser);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login')
+    // Check if user is logged in (simulated)
+    const auth = localStorage.getItem("userAuth");
+    if (auth) {
+      setIsLoggedIn(true);
+      const userData = JSON.parse(auth);
+      setUser({ ...sampleUser, ...userData });
     }
-  }, [isAuthenticated, router])
+  }, []);
 
-  if (!currentUser) {
-    return null
-  }
+  // If not logged in, show login prompt
+  if (!isLoggedIn) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navigation />
+        
+        <div className="container mx-auto px-4 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md mx-auto text-center"
+          >
+            <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+              <User className="w-10 h-10 text-white" />
+            </div>
+            
+            <h1 className="text-2xl font-bold mb-2">Welcome to Rainbow Aqua</h1>
+            <p className="text-gray-500 mb-8">
+              Sign in to access your account, track orders, and manage your wishlist.
+            </p>
 
-  const orders = getMyOrders()
+            <div className="space-y-3">
+              <Link href="/auth/signin" className="block">
+                <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/auth/register" className="block">
+                <Button variant="outline" className="w-full" size="lg">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-700'
-      case 'confirmed': return 'bg-blue-100 text-blue-700'
-      case 'processing': return 'bg-purple-100 text-purple-700'
-      case 'shipped': return 'bg-indigo-100 text-indigo-700'
-      case 'delivered': return 'bg-green-100 text-green-700'
-      case 'cancelled': return 'bg-red-100 text-red-700'
-      default: return 'bg-gray-100 text-gray-700'
-    }
-  }
+            <div className="mt-8 p-4 bg-orange-50 rounded-xl border border-orange-200">
+              <p className="text-sm text-orange-700">
+                🎁 <strong>New members</strong> get 10% off their first order!
+              </p>
+            </div>
+          </motion.div>
+        </div>
 
-  const getStatusIcon = (status: Order['status']) => {
-    switch (status) {
-      case 'pending': return <Clock className="w-4 h-4" />
-      case 'shipped': return <Truck className="w-4 h-4" />
-      case 'delivered': return <CheckCircle className="w-4 h-4" />
-      case 'cancelled': return <XCircle className="w-4 h-4" />
-      default: return <Package className="w-4 h-4" />
-    }
-  }
-
-  const handleLogout = () => {
-    logout()
-    router.push('/')
+        <Footer />
+      </main>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container-custom">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="lg:w-72 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-24">
-              {/* User Info */}
-              <div className="p-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white">
-                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold mb-4">
-                  {currentUser.name.charAt(0)}
-                </div>
-                <h2 className="font-heading font-bold text-xl">{currentUser.name}</h2>
-                <p className="text-white/80 text-sm">{currentUser.email}</p>
-                <span className="inline-block mt-2 px-2 py-0.5 bg-white/20 rounded-full text-xs">
-                  {currentUser.role}
-                </span>
-              </div>
-
-              {/* Navigation */}
-              <nav className="p-4 space-y-1">
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                    activeTab === 'orders' ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <Package className="w-5 h-5" />
-                  <span className="font-medium">My Orders</span>
-                  <ChevronRight className="w-4 h-4 ml-auto" />
-                </button>
-                <button
-                  onClick={() => setActiveTab('profile')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                    activeTab === 'profile' ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Profile</span>
-                  <ChevronRight className="w-4 h-4 ml-auto" />
-                </button>
-                <Link
-                  href="/wishlist"
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  <Heart className="w-5 h-5" />
-                  <span className="font-medium">Wishlist</span>
-                  <ChevronRight className="w-4 h-4 ml-auto" />
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Logout</span>
-                </button>
-              </nav>
-
-              {/* Admin Link for admin/owner */}
-              {(currentUser.role === 'admin' || currentUser.role === 'owner') && (
-                <div className="p-4 border-t">
-                  <Link
-                    href="/admin/dashboard"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-dark text-white rounded-xl hover:bg-gray-800 transition-colors"
-                  >
-                    <span className="font-medium">Admin Dashboard</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Orders Tab */}
-            {activeTab === 'orders' && (
+    <main className="min-h-screen bg-gray-50">
+      <Navigation />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-4 gap-6">
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-white rounded-2xl shadow-sm border p-6"
               >
-                <h1 className="font-heading font-bold text-2xl mb-6">My Orders</h1>
-
-                {orders.length === 0 ? (
-                  <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-                    <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h2 className="font-heading font-semibold text-xl text-gray-900 mb-2">
-                      No orders yet
-                    </h2>
-                    <p className="text-gray-500 mb-6">
-                      Start shopping to see your orders here!
-                    </p>
-                    <Link
-                      href="/shop"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
-                    >
-                      Shop Now
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.map((order, i) => (
-                      <motion.div
-                        key={order.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="bg-white rounded-2xl shadow-sm overflow-hidden"
-                      >
-                        {/* Order Header */}
-                        <div className="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50">
-                          <div>
-                            <p className="font-medium text-primary-500">{order.id}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              })}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                              {getStatusIcon(order.status)}
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Order Items */}
-                        <div className="p-4 space-y-4">
-                          {order.items.map((item, j) => (
-                            <div key={j} className="flex items-center gap-4">
-                              <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden relative flex-shrink-0">
-                                <Image
-                                  src={item.productImage}
-                                  alt={item.productName}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-900 truncate">{item.productName}</p>
-                                <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                              </div>
-                              <p className="font-medium text-gray-900">
-                                {formatPrice(item.price * item.quantity)}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Order Footer */}
-                        <div className="p-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
-                          <div className="text-sm text-gray-500">
-                            <span className="font-medium text-gray-700">{order.paymentMethod}</span>
-                            {' · '}
-                            <span className={order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}>
-                              {order.paymentStatus}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-500">Total</p>
-                            <p className="font-bold text-lg text-primary-500">{formatPrice(order.total)}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Profile Tab */}
-            {activeTab === 'profile' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <h1 className="font-heading font-bold text-2xl mb-6">My Profile</h1>
-
-                <div className="bg-white rounded-2xl shadow-sm p-6">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-3xl font-bold text-primary-600">
-                        {currentUser.name.charAt(0)}
-                      </div>
-                      <div>
-                        <h2 className="font-heading font-bold text-xl">{currentUser.name}</h2>
-                        <p className="text-gray-500">{currentUser.role}</p>
-                      </div>
+                {/* Profile */}
+                <div className="text-center mb-6">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <div className="w-full h-full bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                      {user.name.charAt(0)}
                     </div>
-                    <button className="p-2 text-gray-400 hover:text-primary-500 transition-colors">
-                      <Edit2 className="w-5 h-5" />
+                    <button className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-md border">
+                      <Camera className="w-3 h-3 text-gray-500" />
                     </button>
                   </div>
+                  <h2 className="font-semibold text-gray-800">{user.name}</h2>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    Member since {user.memberSince}
+                  </Badge>
+                </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                      <Mail className="w-5 h-5 text-gray-400" />
+                {/* Menu */}
+                <nav className="space-y-1">
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors"
+                    >
+                      <span className="flex items-center gap-3">
+                        <item.icon className="w-4 h-4 text-gray-400" />
+                        {item.label}
+                      </span>
+                      {item.badge ? (
+                        <Badge className="bg-primary text-white text-xs">{item.badge}</Badge>
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-300" />
+                      )}
+                    </Link>
+                  ))}
+                </nav>
+
+                {/* Logout */}
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("userAuth");
+                    setIsLoggedIn(false);
+                  }}
+                  className="w-full mt-4 flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 text-sm transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </motion.div>
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Welcome Banner */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-6 text-white"
+              >
+                <h1 className="text-2xl font-bold mb-2">Welcome back, {user.name.split(" ")[0]}! 👋</h1>
+                <p className="text-white/80">
+                  Track your orders, manage wishlist, and explore our premium collection.
+                </p>
+              </motion.div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { label: "Orders", value: "12", icon: Package },
+                  { label: "Wishlist", value: "5", icon: Heart },
+                  { label: "Reviews", value: "3", icon: Edit },
+                  { label: "Points", value: "250", icon: ShoppingBag },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-xl p-4 shadow-sm border"
+                  >
+                    <stat.icon className="w-5 h-5 text-primary mb-2" />
+                    <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+                    <p className="text-xs text-gray-500">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Recent Orders */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-2xl shadow-sm border"
+              >
+                <div className="p-5 border-b flex items-center justify-between">
+                  <h2 className="font-semibold text-gray-800">Recent Orders</h2>
+                  <Link href="/account/orders" className="text-sm text-primary hover:underline">
+                    View All
+                  </Link>
+                </div>
+                <div className="divide-y">
+                  {recentOrders.map((order) => (
+                    <div key={order.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
                       <div>
-                        <p className="text-sm text-gray-500">Email</p>
-                        <p className="font-medium">{currentUser.email}</p>
+                        <p className="font-medium text-gray-800">{order.product}</p>
+                        <p className="text-xs text-gray-500">{order.id} • {order.date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-800">{order.amount}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[order.status]}`}>
+                          {order.status}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                      <Phone className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">Phone</p>
-                        <p className="font-medium">{currentUser.mobile || 'Not added'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                      <MapPin className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">Address</p>
-                        <p className="font-medium">Not added</p>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </motion.div>
-            )}
+
+              {/* Profile Settings */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-2xl shadow-sm border p-6"
+              >
+                <h2 className="font-semibold text-gray-800 mb-4">Profile Information</h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name" className="text-sm">Full Name</Label>
+                    <Input id="name" defaultValue={user.name} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-sm">Email</Label>
+                    <Input id="email" type="email" defaultValue={user.email} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-sm">Phone</Label>
+                    <Input id="phone" defaultValue={user.phone} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="district" className="text-sm">District</Label>
+                    <Input id="district" defaultValue={user.district} className="mt-1" />
+                  </div>
+                </div>
+                <Button className="mt-4 bg-primary">Save Changes</Button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
 
+      <Footer />
+    </main>
+  );
+}

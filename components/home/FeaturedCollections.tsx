@@ -45,8 +45,9 @@ export default function FeaturedCollections() {
             slideShadows: false,
           }}
           autoplay={{
-            delay: 4000,
+            delay: 5000, // 5 seconds - consistent with all carousels
             disableOnInteraction: false,
+            pauseOnMouseEnter: true,
           }}
           pagination={{ clickable: true }}
           breakpoints={{
