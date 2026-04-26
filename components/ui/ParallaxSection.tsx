@@ -106,11 +106,11 @@ export function WaveDivider({
 export function FloatingPaws({ className }: { className?: string }) {
   const paws = Array.from({ length: 8 }, (_, i) => ({
     id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 5 + Math.random() * 5,
-    size: 20 + Math.random() * 40,
+    x: (i * 17 + 11) % 100,
+    y: (i * 23 + 19) % 100,
+    delay: (i % 5) * 0.8,
+    duration: 5 + (i % 4) * 1.25,
+    size: 20 + (i % 5) * 6,
   }))
 
   return (

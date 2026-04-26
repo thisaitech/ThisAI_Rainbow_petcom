@@ -64,9 +64,9 @@ export default function DogBoardingPage() {
             <motion.div
               key={i}
               animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.2, 1] }}
-              transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, delay: i * 0.2 }}
+              transition={{ duration: 2 + (i % 4) * 0.5, repeat: Infinity, delay: i * 0.2 }}
               className="absolute w-2 h-2 bg-white rounded-full"
-              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 50}%` }}
+              style={{ left: `${(i * 17 + 9) % 100}%`, top: `${(i * 11 + 6) % 50}%` }}
             />
           ))}
           <motion.div

@@ -12,10 +12,10 @@ import { useCartStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer({ children }: { children: ReactNode }) {
-  const { items, isOpen, toggleCart, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
+  const { items, isOpen, toggleCart, setCartOpen, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
 
   return (
-    <Sheet open={isOpen} onOpenChange={toggleCart}>
+    <Sheet open={isOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>
         {children}
       </SheetTrigger>
@@ -115,7 +115,7 @@ export function CartDrawer({ children }: { children: ReactNode }) {
               {/* Promo Code */}
               <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 text-center">
                 <p className="text-sm">
-                  Use code <span className="font-bold text-accent">AQUAFIRST25</span> for 25% off!
+                  Use code <span className="font-bold text-accent">AQUAFIRST50</span> for 25% off!
                 </p>
               </div>
 

@@ -280,7 +280,7 @@ export default function ServicesPage() {
                 x: Math.sin(i) * 50
               }}
               transition={{
-                duration: 4 + Math.random() * 2,
+                duration: 4 + (i % 4) * 0.5,
                 repeat: Infinity,
                 delay: i * 0.5,
               }}
@@ -935,17 +935,17 @@ export default function ServicesPage() {
               key={i}
               className="absolute w-2 h-2 bg-white/20 rounded-full"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${(i * 17 + 13) % 100}%`,
+                top: `${(i * 29 + 7) % 100}%`,
               }}
               animate={{
                 scale: [1, 1.5, 1],
                 opacity: [0.2, 0.5, 0.2],
               }}
               transition={{
-                duration: 2 + Math.random() * 2,
+                duration: 2 + (i % 4) * 0.5,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: (i % 5) * 0.2,
               }}
             />
           ))}

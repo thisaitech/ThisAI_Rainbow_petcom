@@ -9,7 +9,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    const duration = 2500
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 900
     const startTime = Date.now()
     
     const updateProgress = () => {
@@ -20,7 +20,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
       if (newProgress < 100) {
         requestAnimationFrame(updateProgress)
       } else {
-        setTimeout(() => setIsLoading(false), 300)
+        setTimeout(() => setIsLoading(false), 120)
       }
     }
 
@@ -58,7 +58,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
                 muted
                 loop
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.15 }}
               >

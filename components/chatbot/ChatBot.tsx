@@ -220,7 +220,7 @@ const getBotResponse = (query: string): { message: string; products?: typeof bir
   // Bye
   if (lowerQuery.includes('bye') || lowerQuery.includes('goodbye')) {
     return {
-      message: "Goodbye! 👋 Thank you for visiting Rainbow Aqua. Come back soon!\n\nUse code **AQUAFIRST25** for 25% off your first order! 🎉"
+      message: "Goodbye! 👋 Thank you for visiting Rainbow Aqua. Come back soon!\n\nUse code **AQUAFIRST50** for 25% off your first order! 🎉"
     }
   }
 

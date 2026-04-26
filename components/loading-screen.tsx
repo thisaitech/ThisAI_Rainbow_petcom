@@ -68,18 +68,18 @@ export function LoadingScreen() {
             key={`bubble-${i}`}
             className="absolute rounded-full bg-gradient-to-br from-cyan-200/60 to-cyan-400/40"
             style={{
-              width: 8 + Math.random() * 14,
-              height: 8 + Math.random() * 14,
-              left: `${Math.random() * 100}%`,
+              width: 10 + (i % 5) * 3,
+              height: 10 + (i % 5) * 3,
+              left: `${(i * 19 + 7) % 100}%`,
               bottom: '-20px',
               boxShadow: 'inset 2px 2px 4px rgba(255,255,255,0.8)',
             }}
             animate={{
-              y: [0, -window.innerHeight - 40],
+              y: [0, '-115vh'],
               opacity: [0, 0.7, 0],
             }}
             transition={{
-              duration: 4 + Math.random() * 2,
+              duration: 4 + (i % 4) * 0.6,
               delay: i * 0.3,
               repeat: Infinity,
               ease: 'easeOut',

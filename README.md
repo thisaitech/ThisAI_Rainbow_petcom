@@ -93,7 +93,7 @@ NEXT_PUBLIC_RAZORPAY_KEY=your_razorpay_key
 
 ## Promo Codes
 
-- **AQUAFIRST25** - 25% off first order
+- **AQUAFIRST50** - 25% off first order
 
 ## Contact
 

@@ -1,11 +1,35 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ThemeProvider } from "next-themes";
-import { ReactNode, Suspense } from "react";
+import { ReactNode, useEffect } from "react";
 import InitialLoader from "./providers/InitialLoader";
-import PageTransitionLoader from "./providers/PageTransitionLoader";
-import { MobileBottomNav } from "./mobile-bottom-nav";
-import { ChatBot } from "./chatbot/ChatBot";
+import ServiceWorkerRegistration from "./providers/ServiceWorkerRegistration";
+import { useCartStore, useUserStore, useWishlistStore } from "@/lib/store";
+
+const PageTransitionLoader = dynamic(() => import("./providers/PageTransitionLoader"), {
+  ssr: false,
+});
+
+const MobileBottomNav = dynamic(
+  () => import("./mobile-bottom-nav").then((mod) => mod.MobileBottomNav),
+  { ssr: false }
+);
+
+const ChatBot = dynamic(
+  () => import("./chatbot/ChatBot").then((mod) => mod.ChatBot),
+  { ssr: false }
+);
+
+function PersistedStoreHydrator() {
+  useEffect(() => {
+    void useCartStore.persist.rehydrate();
+    void useWishlistStore.persist.rehydrate();
+    void useUserStore.persist.rehydrate();
+  }, []);
+
+  return null;
+}
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -16,9 +40,9 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       <InitialLoader>
-        <Suspense fallback={null}>
-          <PageTransitionLoader />
-        </Suspense>
+        <PersistedStoreHydrator />
+        <PageTransitionLoader />
+        <ServiceWorkerRegistration />
         {children}
         <MobileBottomNav />
         <ChatBot />

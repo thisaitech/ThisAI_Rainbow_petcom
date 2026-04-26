@@ -90,7 +90,7 @@ export default function DogWalkingPage() {
                 rotate: [0, 360]
               }}
               transition={{
-                duration: 4 + Math.random() * 2,
+                duration: 4 + (i % 4) * 0.5,
                 repeat: Infinity,
                 delay: i * 0.5,
               }}

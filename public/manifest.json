@@ -80,21 +80,21 @@
       "short_name": "Shop",
       "description": "Browse all products",
       "url": "/shop",
-      "icons": [{ "src": "/icons/shop.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/shop.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Aquarium Fish",
       "short_name": "Fish",
       "description": "View aquarium fish collection",
       "url": "/shop/aquarium-fish",
-      "icons": [{ "src": "/icons/fish.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/fish.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "name": "Pets",
-      "short_name": "Pets",
-      "description": "Browse all pets",
-      "url": "/pets",
-      "icons": [{ "src": "/icons/pets.png", "sizes": "96x96" }]
+      "name": "Birds & Fish",
+      "short_name": "Birds",
+      "description": "Browse birds and fish",
+      "url": "/birds-fish",
+      "icons": [{ "src": "/icons/pets.png", "sizes": "96x96", "type": "image/png" }]
     }
   ]
 }

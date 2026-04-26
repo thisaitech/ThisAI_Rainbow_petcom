@@ -42,6 +42,7 @@ interface CartStore {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   toggleCart: () => void;
+  setCartOpen: (isOpen: boolean) => void;
   getTotal: () => number;
   getItemCount: () => number;
 }
@@ -126,6 +127,7 @@ export const useCartStore = create<CartStore>()(
       },
       clearCart: () => set({ items: [] }),
       toggleCart: () => set({ isOpen: !get().isOpen }),
+      setCartOpen: (isOpen) => set({ isOpen }),
       getTotal: () => {
         return get().items.reduce(
           (total, item) => total + item.product.price * item.quantity,
@@ -136,7 +138,19 @@ export const useCartStore = create<CartStore>()(
         return get().items.reduce((count, item) => count + item.quantity, 0);
       },
     }),
-    { name: "aquapet-cart" }
+    {
+      name: "aquapet-cart",
+      skipHydration: true,
+      partialize: (state) => ({ items: state.items }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<CartStore>;
+
+        return {
+          ...currentState,
+          items: persisted.items ?? currentState.items,
+        };
+      },
+    }
   )
 );
 
@@ -156,7 +170,19 @@ export const useWishlistStore = create<WishlistStore>()(
         return get().items.some((item) => item.product.id === productId);
       },
     }),
-    { name: "aquapet-wishlist" }
+    {
+      name: "aquapet-wishlist",
+      skipHydration: true,
+      partialize: (state) => ({ items: state.items }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<WishlistStore>;
+
+        return {
+          ...currentState,
+          items: persisted.items ?? currentState.items,
+        };
+      },
+    }
   )
 );
 
@@ -201,7 +227,23 @@ export const useUserStore = create<UserStore>()(
         return false;
       },
     }),
-    { name: "aquapet-user" }
+    {
+      name: "aquapet-user",
+      skipHydration: true,
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<UserStore>;
+
+        return {
+          ...currentState,
+          user: persisted.user ?? currentState.user,
+          isAuthenticated: persisted.isAuthenticated ?? currentState.isAuthenticated,
+        };
+      },
+    }
   )
 );
 

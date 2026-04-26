@@ -20,7 +20,7 @@ export default function CartPage() {
   const [discount, setDiscount] = useState(0);
 
   const handleApplyPromo = () => {
-    if (promoCode.toUpperCase() === "AQUAFIRST25") {
+    if (promoCode.toUpperCase() === "AQUAFIRST50") {
       setDiscount(getTotal() * 0.25);
       toast({
         title: "Promo Applied! 🎉",
@@ -177,7 +177,7 @@ export default function CartPage() {
                       <Button onClick={handleApplyPromo}>Apply</Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Try: AQUAFIRST25 for 25% off
+                      Try: AQUAFIRST50 for 25% off
                     </p>
                   </div>
 

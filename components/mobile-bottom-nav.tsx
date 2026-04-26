@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -61,26 +61,35 @@ export function MobileBottomNav() {
   const { getItemCount } = useCartStore()
   const { items: wishlistItems } = useWishlistStore()
   const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
-  const [cartOpen, setCartOpen] = useState(false)
+  const lastScrollYRef = useRef(0)
+  const isVisibleRef = useRef(true)
 
   // Hide on scroll down, show on scroll up
   useEffect(() => {
+    let ticking = false
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false)
-      } else {
-        setIsVisible(true)
-      }
-      
-      setLastScrollY(currentScrollY)
+      if (ticking) return
+
+      ticking = true
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY
+        const nextVisible = !(currentScrollY > lastScrollYRef.current && currentScrollY > 100)
+
+        lastScrollYRef.current = currentScrollY
+
+        if (isVisibleRef.current !== nextVisible) {
+          isVisibleRef.current = nextVisible
+          setIsVisible(nextVisible)
+        }
+
+        ticking = false
+      })
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [lastScrollY])
+  }, [])
 
   const isActive = (item: typeof navItems[0]) => {
     if (item.exactMatch) return pathname === item.href

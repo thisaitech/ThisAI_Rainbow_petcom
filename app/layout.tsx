@@ -21,7 +21,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "Rinbow Aqua | Premium Aquarium Fish & Pets",
-  description: "India's #1 destination for premium aquarium fish, pets, and accessories. Live arrival guarantee. Free shipping on orders over ₹2000. Use code RINBOW25 for 25% off!",
+  description: "India's #1 destination for premium aquarium fish, pets, and accessories. Live arrival guarantee. Free shipping on orders over ₹2000. Use code AQUAFIRST50 for 25% off!",
   keywords: "aquarium fish, pets, betta fish, arowana, discus, goldfish, dogs, cats, birds, reptiles, pet accessories, pet store India",
   authors: [{ name: "ThisAI Technologies" }],
   creator: "ThisAI Technologies",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "Rinbow Aqua",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Rinbow Aqua - Premium Aquarium Fish & Pets",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Rinbow Aqua | Premium Aquarium Fish & Pets",
     description: "India's #1 destination for premium aquarium fish and pets.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icons/icon-192x192.png",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },

@@ -1,5 +1,6 @@
 'use client'
 
+import { useId } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -49,7 +50,7 @@ export function TestimonialsCarousel({
   className = ''
 }: TestimonialsCarouselProps) {
   const colors = colorClasses[color] || colorClasses.primary
-  const uniqueId = `testimonials-${Math.random().toString(36).substr(2, 9)}`
+  const uniqueId = useId().replace(/:/g, '')
 
   // Double testimonials for better loop
   const allTestimonials = [...testimonials, ...testimonials]
@@ -73,12 +74,12 @@ export function TestimonialsCarousel({
           {/* Navigation Buttons */}
           <div className="hidden md:flex justify-center gap-4 mb-8">
             <button 
-              className={`${uniqueId}-prev w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all hover:scale-110`}
+              className={`testimonials-prev-${uniqueId} w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all hover:scale-110`}
             >
               <ChevronLeft className="w-6 h-6 text-gray-600" />
             </button>
             <button 
-              className={`${uniqueId}-next w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all hover:scale-110`}
+              className={`testimonials-next-${uniqueId} w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all hover:scale-110`}
             >
               <ChevronRight className="w-6 h-6 text-gray-600" />
             </button>
@@ -97,8 +98,8 @@ export function TestimonialsCarousel({
               slideShadows: false,
             }}
             navigation={{
-              prevEl: `.${uniqueId}-prev`,
-              nextEl: `.${uniqueId}-next`,
+              prevEl: `.testimonials-prev-${uniqueId}`,
+              nextEl: `.testimonials-next-${uniqueId}`,
             }}
             pagination={{ 
               clickable: true, 

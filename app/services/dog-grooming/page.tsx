@@ -69,7 +69,7 @@ export default function DogGroomingPage() {
               animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }}
               transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
               className="absolute"
-              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}>
+              style={{ left: `${(i * 19 + 11) % 100}%`, top: `${(i * 31 + 5) % 100}%` }}>
               <Sparkles className="w-4 h-4 text-white" />
             </motion.div>
           ))}

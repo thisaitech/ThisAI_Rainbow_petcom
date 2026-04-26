@@ -316,7 +316,7 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
                 {/* Promo */}
                 <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 text-center">
                   <p className="text-sm">
-                    Use code <span className="font-bold text-accent">AQUAFIRST25</span> for 25% off!
+                    Use code <span className="font-bold text-accent">AQUAFIRST50</span> for 25% off!
                   </p>
                 </div>
               </div>

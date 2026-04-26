@@ -92,18 +92,18 @@ export default function PageLoader({ onLoadComplete }: PageLoaderProps) {
                 key={i}
                 className="absolute rounded-full bg-gradient-to-br from-cyan-200/50 to-cyan-400/30"
                 style={{
-                  width: 6 + Math.random() * 12,
-                  height: 6 + Math.random() * 12,
-                  left: `${Math.random() * 100}%`,
+                  width: 8 + (i % 5) * 3,
+                  height: 8 + (i % 5) * 3,
+                  left: `${(i * 17 + 9) % 100}%`,
                   bottom: '-15px',
                   boxShadow: 'inset 1px 1px 3px rgba(255,255,255,0.8)',
                 }}
                 animate={{
-                  y: [0, -window.innerHeight - 30],
+                  y: [0, '-110vh'],
                   opacity: [0, 0.6, 0],
                 }}
                 transition={{
-                  duration: 3 + Math.random() * 2,
+                  duration: 3 + (i % 4) * 0.5,
                   delay: i * 0.2,
                   repeat: Infinity,
                   ease: 'easeOut',
