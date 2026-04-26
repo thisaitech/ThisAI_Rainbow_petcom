@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://rinbowaqua.in"),
+  metadataBase: new URL("https://petshop.thisaitech.com"),
   openGraph: {
     title: "Rinbow Aqua | Premium Aquarium Fish & Pets",
     description: "India's #1 destination for premium aquarium fish, pets, and accessories.",
-    url: "https://rinbowaqua.in",
+    url: "https://petshop.thisaitech.com",
     siteName: "Rinbow Aqua",
     images: [
       {
