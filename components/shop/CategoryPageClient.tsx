@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, Grid, Grid3X3, SlidersHorizontal, X } from "lucide-react";
 import { Navigation } from "@/components/navigation";
@@ -14,16 +15,40 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { products, categories } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
-import Link from "next/link";
+import { useStorefrontProducts } from "@/lib/useStorefrontProducts";
 
 interface CategoryPageClientProps {
   categorySlug: string;
 }
 
+const categoryMeta: Record<string, { name: string; description: string; image: string }> = {
+  "aquarium-fish": {
+    name: "Aquarium Fish",
+    description: "Premium aquarium fish selected from the products you manage in admin.",
+    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200",
+  },
+  accessories: {
+    name: "Accessories",
+    description: "Premium aquarium accessories & supplies added from your admin catalog.",
+    image: "https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200",
+  },
+  "birds-fish": {
+    name: "Birds & Fish",
+    description: "Browse your live birds, fish, and related products from the admin catalog.",
+    image: "https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=1200",
+  },
+};
+
+const titleCase = (value: string) =>
+  value
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 export default function CategoryPageClient({ categorySlug }: CategoryPageClientProps) {
-  const category = categories.find((c) => c.slug === categorySlug);
+  const { storefrontProducts, birdsAndFishProducts } = useStorefrontProducts();
+  const sourceProducts = categorySlug === "birds-fish" ? birdsAndFishProducts : storefrontProducts;
+  const category = categoryMeta[categorySlug];
 
   const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
   const [sortBy, setSortBy] = useState("featured");
@@ -32,19 +57,37 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
   const [inStockOnly, setInStockOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const filteredProducts = useMemo(() => {
-    let result = products.filter((p) => p.category === categorySlug);
+  const categoryProducts = useMemo(
+    () => sourceProducts.filter((product) => product.category === categorySlug),
+    [categorySlug, sourceProducts]
+  );
 
-    if (selectedSubcategories.length > 0) {
-      result = result.filter((p) => p.subcategory && selectedSubcategories.includes(p.subcategory));
-    }
-
-    result = result.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
+  const availableSubcategories = useMemo(() => {
+    const uniqueSubcategories = Array.from(
+      new Set(
+        categoryProducts
+          .map((product) => product.subcategory)
+          .filter((subcategory): subcategory is string => Boolean(subcategory))
+      )
     );
 
+    return uniqueSubcategories.map((subcategory) => ({
+      slug: subcategory,
+      name: titleCase(subcategory),
+    }));
+  }, [categoryProducts]);
+
+  const filteredProducts = useMemo(() => {
+    let result = [...categoryProducts];
+
+    if (selectedSubcategories.length > 0) {
+      result = result.filter((product) => product.subcategory && selectedSubcategories.includes(product.subcategory));
+    }
+
+    result = result.filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+
     if (inStockOnly) {
-      result = result.filter((p) => p.inStock);
+      result = result.filter((product) => product.inStock);
     }
 
     switch (sortBy) {
@@ -61,19 +104,19 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
         result.sort((a, b) => b.rating - a.rating);
         break;
       case "newest":
-        result = result.filter((p) => p.isNew).concat(result.filter((p) => !p.isNew));
+        result = result.filter((product) => product.isNew).concat(result.filter((product) => !product.isNew));
         break;
       default:
-        result = result.filter((p) => p.isFeatured).concat(result.filter((p) => !p.isFeatured));
+        result = result.filter((product) => product.isFeatured).concat(result.filter((product) => !product.isFeatured));
     }
 
     return result;
-  }, [categorySlug, selectedSubcategories, priceRange, inStockOnly, sortBy]);
+  }, [categoryProducts, selectedSubcategories, priceRange, inStockOnly, sortBy]);
 
   const toggleSubcategory = (subcategory: string) => {
     setSelectedSubcategories((prev) =>
       prev.includes(subcategory)
-        ? prev.filter((c) => c !== subcategory)
+        ? prev.filter((value) => value !== subcategory)
         : [...prev, subcategory]
     );
   };
@@ -86,21 +129,21 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
 
   const FilterContent = () => (
     <div className="space-y-6">
-      {category?.subcategories && (
+      {availableSubcategories.length > 0 && (
         <Accordion type="single" collapsible defaultValue="subcategories">
           <AccordionItem value="subcategories">
             <AccordionTrigger>Subcategories</AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2">
-                {category.subcategories.map((sub) => (
-                  <div key={sub.slug} className="flex items-center space-x-2">
+                {availableSubcategories.map((subcategory) => (
+                  <div key={subcategory.slug} className="flex items-center space-x-2">
                     <Checkbox
-                      id={sub.slug}
-                      checked={selectedSubcategories.includes(sub.slug)}
-                      onCheckedChange={() => toggleSubcategory(sub.slug)}
+                      id={subcategory.slug}
+                      checked={selectedSubcategories.includes(subcategory.slug)}
+                      onCheckedChange={() => toggleSubcategory(subcategory.slug)}
                     />
-                    <Label htmlFor={sub.slug} className="text-sm cursor-pointer">
-                      {sub.name}
+                    <Label htmlFor={subcategory.slug} className="text-sm cursor-pointer">
+                      {subcategory.name}
                     </Label>
                   </div>
                 ))}
@@ -115,13 +158,7 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
           <AccordionTrigger>Price Range</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
-              <Slider
-                value={priceRange}
-                onValueChange={setPriceRange}
-                min={0}
-                max={150000}
-                step={1000}
-              />
+              <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={150000} step={1000} />
               <div className="flex items-center justify-between text-sm">
                 <span>{formatPrice(priceRange[0])}</span>
                 <span>{formatPrice(priceRange[1])}</span>
@@ -236,16 +273,10 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
 
                 <div className="flex items-center gap-2">
                   <div className="hidden md:flex items-center border rounded-lg">
-                    <button
-                      onClick={() => setGridCols(2)}
-                      className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}
-                    >
+                    <button onClick={() => setGridCols(2)} className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}>
                       <Grid className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => setGridCols(4)}
-                      className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}
-                    >
+                    <button onClick={() => setGridCols(4)} className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}>
                       <Grid3X3 className="w-4 h-4" />
                     </button>
                   </div>
@@ -268,23 +299,18 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
 
               {selectedSubcategories.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {selectedSubcategories.map((sub) => (
+                  {selectedSubcategories.map((subcategory) => (
                     <Badge
-                      key={sub}
+                      key={subcategory}
                       variant="outline"
                       className="cursor-pointer hover:bg-muted"
-                      onClick={() => toggleSubcategory(sub)}
+                      onClick={() => toggleSubcategory(subcategory)}
                     >
-                      {category.subcategories?.find((s) => s.slug === sub)?.name}
+                      {availableSubcategories.find((item) => item.slug === subcategory)?.name ?? titleCase(subcategory)}
                       <X className="w-3 h-3 ml-1" />
                     </Badge>
                   ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="text-xs"
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs">
                     Clear all
                   </Button>
                 </div>
@@ -315,4 +341,3 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
     </main>
   );
 }
-

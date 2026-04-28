@@ -1,7 +1,5 @@
 "use client";
 
-export const USER_AUTH_STORAGE_KEY = "userAuth";
-
 export interface DemoSocialAuthUser {
   name: string;
   email: string;
@@ -25,8 +23,6 @@ export async function signInWithDemoGoogle() {
     district: "Chennai",
     authProvider: "google",
   };
-
-  localStorage.setItem(USER_AUTH_STORAGE_KEY, JSON.stringify(user));
 
   return user;
 }

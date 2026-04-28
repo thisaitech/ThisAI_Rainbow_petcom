@@ -10,6 +10,7 @@ const CORE_ASSETS = [
   "/wishlist",
   OFFLINE_URL,
   "/manifest.json",
+  "/favicon.ico",
   "/favicon-16x16.png",
   "/apple-touch-icon.png",
   "/icons/icon-192x192.png",
@@ -48,6 +49,9 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/_next/")) return;
 
+  const requestToHandle =
+    url.pathname === "/favicon.ico" ? new Request("/favicon-16x16.png") : event.request;
+
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request)
@@ -70,17 +74,27 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const networkResponse = fetch(event.request)
+    caches.match(requestToHandle).then((cachedResponse) => {
+      const networkResponse = fetch(requestToHandle)
         .then((response) => {
           if (response && response.ok) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+            caches.open(CACHE_NAME).then((cache) => cache.put(requestToHandle, response.clone()));
           }
 
           return response;
         })
         .catch(() => {
-          return cachedResponse || new Response("Offline", { status: 503, statusText: "Offline" });
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          if (url.pathname === "/favicon.ico") {
+            return caches.match("/favicon-16x16.png").then(
+              (iconResponse) => iconResponse || new Response(null, { status: 204 })
+            );
+          }
+
+          return new Response(null, { status: 204 });
         });
 
       return cachedResponse || networkResponse;

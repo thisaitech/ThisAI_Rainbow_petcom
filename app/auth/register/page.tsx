@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { signInWithDemoGoogle } from "@/lib/demo-social-auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 // Tamil Nadu Districts
 const tamilNaduDistricts = [
@@ -38,6 +39,7 @@ const tamilNaduDistricts = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { loginDemoCustomer, isAuthenticated, currentUser } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +52,21 @@ export default function RegisterPage() {
     confirmPassword: "",
     district: "",
   });
+
+  useEffect(() => {
+    if (isAuthenticated && currentUser?.role === "user") {
+      router.push("/account");
+      return;
+    }
+
+    if (isAuthenticated && (currentUser?.role === "admin" || currentUser?.role === "owner")) {
+      router.push("/admin/dashboard");
+    }
+  }, [currentUser, isAuthenticated, router]);
+
+  if (isAuthenticated && currentUser) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,15 +82,13 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    // Simulate registration (in production, use proper auth)
     setTimeout(() => {
-      // Store user data
-      localStorage.setItem("userAuth", JSON.stringify({
+      loginDemoCustomer({
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        mobile: formData.phone.replace(/\D/g, "").slice(-10) || "9876543215",
         district: formData.district,
-      }));
+      });
       
       toast({
         title: "Welcome to Rainbow Aqua! 🎉",
@@ -88,7 +103,13 @@ export default function RegisterPage() {
     setSocialLoading("google");
 
     try {
-      await signInWithDemoGoogle();
+      const socialUser = await signInWithDemoGoogle();
+      loginDemoCustomer({
+        name: socialUser.name,
+        email: socialUser.email,
+        mobile: socialUser.phone.replace(/\D/g, "").slice(-10) || "9876543215",
+        district: socialUser.district,
+      });
 
       toast({
         title: "Signed up with Google",

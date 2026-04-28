@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
+import type { KeyboardEvent } from "react";
 import {
   Menu,
   X,
@@ -100,6 +101,29 @@ export function Navigation() {
 
     return () => window.clearTimeout(timer);
   }, [router]);
+
+  const submitSearch = () => {
+    const normalizedQuery = searchQuery.trim();
+
+    setSearchOpen(false);
+    if (isMobileMenuOpen) {
+      toggleMobileMenu();
+    }
+
+    if (!normalizedQuery) {
+      router.push("/shop");
+      return;
+    }
+
+    router.push(`/shop?search=${encodeURIComponent(normalizedQuery)}`);
+  };
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      submitSearch();
+    }
+  };
 
   return (
     <>
@@ -335,6 +359,7 @@ export function Navigation() {
                         placeholder="Search fish & accessories..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
                         className="pr-10"
                         autoFocus
                         onBlur={() => !searchQuery && setSearchOpen(false)}
@@ -350,6 +375,17 @@ export function Navigation() {
                     </Button>
                   )}
                 </AnimatePresence>
+                {searchOpen && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={submitSearch}
+                  >
+                    <Search className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
 
               {/* Theme Toggle */}
@@ -481,8 +517,12 @@ export function Navigation() {
                     placeholder="Search fish & accessories..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                     className="w-full"
                   />
+                  <Button onClick={submitSearch} className="mt-3 w-full">
+                    Search Products
+                  </Button>
                 </div>
 
                 {/* Mobile Nav Links */}

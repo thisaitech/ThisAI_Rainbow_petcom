@@ -2,6 +2,8 @@ import { products } from "@/lib/data";
 import { birdsAndFishProducts } from "@/lib/birdsAndFishData";
 import ProductPageClient from "@/components/product/ProductPageClient";
 
+export const dynamicParams = true;
+
 // Generate static params for all products (including birds & fish)
 export function generateStaticParams() {
   // Combine all products from both data sources

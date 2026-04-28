@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "node scripts/build-static.cjs",
     "start": "next start",
     "lint": "next lint"
   },
@@ -32,6 +33,7 @@
     "clsx": "^2.1.0",
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.309.0",
+    "mysql2": "^3.22.3",
     "next": "14.2.0",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",

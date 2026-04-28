@@ -14,12 +14,14 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
-import { birdsAndFishProducts, birdSpecies, freshwaterFishSpecies, marineFishSpecies } from '@/lib/birdsAndFishData'
+import { birdSpecies, freshwaterFishSpecies, marineFishSpecies } from '@/lib/birdsAndFishData'
 import { useCartStore, useWishlistStore } from '@/lib/store'
+import { useStorefrontProducts } from '@/lib/useStorefrontProducts'
 import { formatPrice, getDiscountPercentage, cn } from '@/lib/utils'
 import { toast } from '@/components/ui/use-toast'
 
 export default function BirdsAndFishPage() {
+  const { birdsAndFishProducts } = useStorefrontProducts()
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState('featured')
@@ -117,7 +119,7 @@ export default function BirdsAndFishPage() {
     }
 
     return products
-  }, [selectedTypes, priceRange, inStockOnly, newArrivalsOnly, sortBy])
+  }, [birdsAndFishProducts, selectedTypes, priceRange, inStockOnly, newArrivalsOnly, sortBy])
 
   const clearFilters = () => {
     setSelectedTypes([])

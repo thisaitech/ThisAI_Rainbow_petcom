@@ -1,19 +1,15 @@
 /** @type {import('next').NextConfig} */
-const isProductionBuild = process.env.NODE_ENV === 'production'
+const shouldStaticExport = process.env.NEXT_STATIC_EXPORT === 'true'
 
 const nextConfig = {
-  output: isProductionBuild ? 'export' : undefined,
-  trailingSlash: isProductionBuild,
+  output: shouldStaticExport ? 'export' : undefined,
+  trailingSlash: shouldStaticExport,
   images: {
     unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
+        hostname: '**',
       },
     ],
   },

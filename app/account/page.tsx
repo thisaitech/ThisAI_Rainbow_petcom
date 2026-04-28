@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -24,16 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// Sample user data
-const sampleUser = {
-  name: "Guest User",
-  email: "guest@example.com",
-  phone: "+91 98765 43210",
-  avatar: null,
-  memberSince: "December 2024",
-  district: "Chennai",
-};
+import { useAuthStore } from "@/store/useAuthStore";
 
 const menuItems = [
   { icon: Package, label: "My Orders", href: "/account/orders", badge: "3" },
@@ -58,21 +50,16 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AccountPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(sampleUser);
+  const router = useRouter();
+  const { currentUser, isAuthenticated, logout } = useAuthStore();
 
   useEffect(() => {
-    // Check if user is logged in (simulated)
-    const auth = localStorage.getItem("userAuth");
-    if (auth) {
-      setIsLoggedIn(true);
-      const userData = JSON.parse(auth);
-      setUser({ ...sampleUser, ...userData });
+    if (isAuthenticated && (currentUser?.role === "admin" || currentUser?.role === "owner")) {
+      router.push("/admin/dashboard");
     }
-  }, []);
+  }, [currentUser, isAuthenticated, router]);
 
-  // If not logged in, show login prompt
-  if (!isLoggedIn) {
+  if (!isAuthenticated || !currentUser) {
     return (
       <main className="min-h-screen bg-background">
         <Navigation />
@@ -117,6 +104,23 @@ export default function AccountPage() {
       </main>
     );
   }
+
+  if (currentUser.role !== "user") {
+    return null;
+  }
+
+  const memberSince = new Date(currentUser.createdAt).toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const user = {
+    name: currentUser.name,
+    email: currentUser.email || "No email added",
+    phone: currentUser.mobile ? `+91 ${currentUser.mobile}` : "+91 98765 43210",
+    district: currentUser.address?.district || "Chennai",
+    memberSince,
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -173,8 +177,8 @@ export default function AccountPage() {
                 {/* Logout */}
                 <button
                   onClick={() => {
-                    localStorage.removeItem("userAuth");
-                    setIsLoggedIn(false);
+                    logout();
+                    router.push("/auth/signin");
                   }}
                   className="w-full mt-4 flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 text-sm transition-colors"
                 >

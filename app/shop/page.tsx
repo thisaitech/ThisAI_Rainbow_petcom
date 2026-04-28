@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, Grid, Grid3X3, SlidersHorizontal, X } from "lucide-react";
 import { Navigation } from "@/components/navigation";
@@ -16,19 +16,45 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import ProductCarousel from "@/components/ui/ProductCarousel";
-import { products, categories } from "@/lib/data";
+import { categories } from "@/lib/data";
+import { useStorefrontProducts } from "@/lib/useStorefrontProducts";
 import { formatPrice } from "@/lib/utils";
 
 export default function ShopPage() {
+  const { storefrontProducts } = useStorefrontProducts();
   const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
   const [sortBy, setSortBy] = useState("featured");
   const [priceRange, setPriceRange] = useState([0, 150000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [rawSearchQuery, setRawSearchQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setRawSearchQuery(params.get("search")?.trim() ?? "");
+  }, []);
+
+  const searchQuery = rawSearchQuery.toLowerCase();
 
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...storefrontProducts];
+
+    if (searchQuery) {
+      result = result.filter((product) => {
+        const searchableFields = [
+          product.name,
+          product.category,
+          product.subcategory ?? "",
+          product.description,
+          ...(product.tags ?? []),
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return searchableFields.includes(searchQuery);
+      });
+    }
 
     // Filter by category
     if (selectedCategories.length > 0) {
@@ -67,7 +93,7 @@ export default function ShopPage() {
     }
 
     return result;
-  }, [selectedCategories, priceRange, inStockOnly, sortBy]);
+  }, [storefrontProducts, searchQuery, selectedCategories, priceRange, inStockOnly, sortBy]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -181,7 +207,7 @@ export default function ShopPage() {
 
       {/* Featured Products - Smooth Drag Carousel */}
       <ProductCarousel
-        products={products.filter(p => p.isFeatured).slice(0, 8)}
+        products={storefrontProducts.filter(p => p.isFeatured).slice(0, 8)}
         variant="smooth"
         title="✨ Featured Collection"
         subtitle="Hand-picked premium products for discerning aquarium lovers"
@@ -190,7 +216,7 @@ export default function ShopPage() {
 
       {/* Hot Deals - Coverflow Style */}
       <ProductCarousel
-        products={products.filter(p => p.originalPrice).slice(0, 8)}
+        products={storefrontProducts.filter(p => p.originalPrice).slice(0, 8)}
         variant="coverflow"
         title="🔥 Hot Deals"
         subtitle="Limited time offers - Don't miss out!"
@@ -201,7 +227,7 @@ export default function ShopPage() {
 
       {/* New Arrivals - Smooth Scroll Carousel */}
       <ProductCarousel
-        products={products.filter(p => p.isNew).slice(0, 10)}
+        products={storefrontProducts.filter(p => p.isNew).slice(0, 10)}
         variant="smooth"
         title="New Arrivals"
         subtitle="Fresh drops just for you"
@@ -256,6 +282,11 @@ export default function ShopPage() {
                   <p className="text-sm text-muted-foreground">
                     {filteredProducts.length} products
                   </p>
+                  {searchQuery && (
+                    <Badge variant="outline" className="ml-2 normal-case">
+                      Search: {rawSearchQuery}
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -293,8 +324,13 @@ export default function ShopPage() {
               </div>
 
               {/* Active Filters */}
-              {selectedCategories.length > 0 && (
+              {(selectedCategories.length > 0 || searchQuery) && (
                 <div className="flex flex-wrap gap-2 mb-6">
+                  {searchQuery && (
+                    <Badge variant="outline" className="normal-case">
+                      {rawSearchQuery}
+                    </Badge>
+                  )}
                   {selectedCategories.map((cat) => (
                     <Badge
                       key={cat}

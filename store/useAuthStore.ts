@@ -89,6 +89,12 @@ interface AuthState {
   verifyOTP: (mobile: string, otp: string) => { success: boolean; message: string }
   loginWithMobileOTP: (mobile: string) => { success: boolean; message: string }
   loginWithPassword: (emailOrMobile: string, password: string) => { success: boolean; message: string }
+  loginDemoCustomer: (userData: {
+    name: string
+    email?: string
+    mobile: string
+    district: string
+  }) => { success: boolean; message: string; user: User }
   register: (userData: {
     name: string
     mobile: string
@@ -500,6 +506,45 @@ export const useAuthStore = create<AuthState>()(
         set({ currentUser: user, isAuthenticated: true })
 
         return { success: true, message: 'Login successful!' }
+      },
+
+      loginDemoCustomer: (userData) => {
+        const { users } = get()
+        const existingUser = users.find((user) =>
+          (userData.email && user.email === userData.email) || user.mobile === userData.mobile
+        )
+
+        if (existingUser) {
+          set({ currentUser: existingUser, isAuthenticated: true })
+          return { success: true, message: 'Login successful!', user: existingUser }
+        }
+
+        const newUser: User = {
+          id: `user-${Date.now()}`,
+          name: userData.name,
+          email: userData.email,
+          mobile: userData.mobile,
+          role: 'user',
+          status: 'active',
+          address: {
+            addressLine1: 'Demo Address',
+            area: userData.district,
+            city: userData.district,
+            district: userData.district,
+            pincode: '600001',
+            state: 'Tamil Nadu',
+            country: 'India',
+          },
+          createdAt: new Date().toISOString(),
+        }
+
+        set((state) => ({
+          users: [...state.users, newUser],
+          currentUser: newUser,
+          isAuthenticated: true,
+        }))
+
+        return { success: true, message: 'Login successful!', user: newUser }
       },
 
       register: (userData) => {

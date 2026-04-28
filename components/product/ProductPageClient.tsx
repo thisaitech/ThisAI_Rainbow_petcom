@@ -25,19 +25,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCartStore, useWishlistStore } from "@/lib/store";
-import { products } from "@/lib/data";
-import { birdsAndFishProducts } from "@/lib/birdsAndFishData";
+import { useStorefrontProducts } from "@/lib/useStorefrontProducts";
 import { formatPrice, getDiscountPercentage } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
-
-// Combine all products
-const allProducts = [...products, ...birdsAndFishProducts];
 
 interface ProductPageClientProps {
   slug: string;
 }
 
+const fallbackProductImage =
+  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800";
+
 export default function ProductPageClient({ slug }: ProductPageClientProps) {
+  const { allProducts, isLoading } = useStorefrontProducts();
   const product = allProducts.find((p) => p.slug === slug);
 
   const [quantity, setQuantity] = useState(1);
@@ -46,6 +46,18 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
 
   const { addItem, toggleCart } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+
+  if (!product && isLoading) {
+    return (
+      <main className="min-h-screen">
+        <Navigation />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold">Loading product...</h1>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   if (!product) {
     return (
@@ -69,6 +81,8 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
   const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
+
+  const categoryLink = product.category === "birds-fish" ? "/birds-fish" : `/shop/${product.category}`;
 
   const handleAddToCart = () => {
     addItem(product, quantity, selectedVariants);
@@ -105,7 +119,7 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
             <ChevronRight className="w-4 h-4" />
             <Link href="/shop" className="hover:text-primary">Shop</Link>
             <ChevronRight className="w-4 h-4" />
-            <Link href={`/shop/${product.category}`} className="hover:text-primary capitalize">
+            <Link href={categoryLink} className="hover:text-primary capitalize">
               {product.category.replace("-", " ")}
             </Link>
             <ChevronRight className="w-4 h-4" />
@@ -127,7 +141,7 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
                 className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100"
               >
                 <Image
-                  src={product.images[selectedImage]}
+                  src={product.images[selectedImage] || fallbackProductImage}
                   alt={product.name}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -166,7 +180,7 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
                       }`}
                     >
                       <Image 
-                        src={img} 
+                        src={img || fallbackProductImage} 
                         alt="" 
                         fill 
                         sizes="80px"
@@ -344,8 +358,8 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
                 </p>
                 {product.tags && (
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {product.tags.map((tag) => (
-                      <Badge key={tag} variant="outline">#{tag}</Badge>
+                    {product.tags.map((tag, index) => (
+                      <Badge key={`${tag}-${index}`} variant="outline">#{tag}</Badge>
                     ))}
                   </div>
                 )}

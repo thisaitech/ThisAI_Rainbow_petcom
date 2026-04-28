@@ -9,13 +9,15 @@ import { BlogPreview } from "@/components/blog-preview";
 import { Newsletter } from "@/components/newsletter";
 import ProductCarousel from "@/components/ui/ProductCarousel";
 import { TamilNaduDeliveryCarousel } from "@/components/tamil-nadu-delivery";
-import { products } from "@/lib/data";
+import { useStorefrontProducts } from "@/lib/useStorefrontProducts";
 
 export default function HomePage() {
+  const { storefrontProducts } = useStorefrontProducts();
+
   // Get filtered products for carousels
-  const newArrivals = products.filter(p => p.isNew === true);
-  const featuredProducts = products.filter(p => p.isFeatured === true);
-  const accessories = products.filter(p => p.category === "accessories");
+  const newArrivals = storefrontProducts.filter(p => p.isNew === true);
+  const featuredProducts = storefrontProducts.filter(p => p.isFeatured === true);
+  const accessories = storefrontProducts.filter(p => p.category === "accessories");
 
   return (
     <main className="min-h-screen bg-background">

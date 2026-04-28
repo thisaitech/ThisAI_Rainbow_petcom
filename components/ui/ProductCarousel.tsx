@@ -72,6 +72,9 @@ const accentColors = {
   }
 }
 
+const fallbackCarouselImage =
+  'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800'
+
 // ==================== PRODUCT CARD ====================
 function ProductCard({ product, className }: { product: Product; className?: string }) {
   const { addItem } = useCartStore()
@@ -107,7 +110,7 @@ function ProductCard({ product, className }: { product: Product; className?: str
         {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <Image
-            src={product.images[0]}
+            src={product.images[0] || fallbackCarouselImage}
             alt={product.name}
             fill
             sizes="(max-width: 480px) 80vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

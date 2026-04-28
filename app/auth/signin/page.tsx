@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,9 +22,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { signInWithDemoGoogle } from "@/lib/demo-social-auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { loginWithPassword, loginDemoCustomer, isAuthenticated, currentUser, logout } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | null>(null);
@@ -34,32 +36,76 @@ export default function SignInPage() {
     rememberMe: false,
   });
 
+  useEffect(() => {
+    if (isAuthenticated && currentUser?.role === "user") {
+      router.push("/account");
+      return;
+    }
+
+    if (isAuthenticated && (currentUser?.role === "admin" || currentUser?.role === "owner")) {
+      router.push("/admin/dashboard");
+    }
+  }, [currentUser, isAuthenticated, router]);
+
+  if (isAuthenticated && currentUser) {
+    return null;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login (in production, use proper auth)
-    setTimeout(() => {
-      // Store user data
-      localStorage.setItem("userAuth", JSON.stringify({
-        name: formData.email.split("@")[0],
-        email: formData.email,
-      }));
-      
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    const result = loginWithPassword(formData.email, formData.password);
+    const signedInUser = useAuthStore.getState().currentUser;
+
+    if (result.success && signedInUser?.role === "user") {
       toast({
         title: "Welcome back! 👋",
         description: "You have successfully signed in.",
       });
-
       router.push("/account");
-    }, 1500);
+      return;
+    }
+
+    if (result.success && (signedInUser?.role === "admin" || signedInUser?.role === "owner")) {
+      toast({
+        title: "Admin account detected",
+        description: "Redirecting you to the admin dashboard.",
+      });
+      router.push("/admin/dashboard");
+      return;
+    }
+
+    logout();
+    const fallbackCustomer = loginDemoCustomer({
+      name: formData.email.split("@")[0] || "Customer",
+      email: formData.email,
+      mobile: "9876543215",
+      district: "Chennai",
+    });
+
+    if (fallbackCustomer.success) {
+      toast({
+        title: "Welcome back! 👋",
+        description: "Signed in with a demo customer account.",
+      });
+      router.push("/account");
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setSocialLoading("google");
 
     try {
-      await signInWithDemoGoogle();
+      const socialUser = await signInWithDemoGoogle();
+      loginDemoCustomer({
+        name: socialUser.name,
+        email: socialUser.email,
+        mobile: socialUser.phone.replace(/\D/g, "").slice(-10) || "9876543215",
+        district: socialUser.district,
+      });
 
       toast({
         title: "Signed in with Google",

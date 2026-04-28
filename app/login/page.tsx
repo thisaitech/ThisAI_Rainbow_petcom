@@ -18,13 +18,13 @@ type Step = 'method' | 'otp-send' | 'otp-verify' | 'password-login' | 'register-
 export default function LoginPage() {
   const router = useRouter()
   const { 
+    currentUser,
     isAuthenticated, 
     sendOTP, 
     verifyOTP, 
     loginWithMobileOTP, 
     loginWithPassword, 
-    register,
-    otpSession 
+    register
   } = useAuthStore()
 
   // State
@@ -58,10 +58,13 @@ export default function LoginPage() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && currentUser?.role === 'user') {
       router.push('/account')
     }
-  }, [isAuthenticated, router])
+    if (isAuthenticated && (currentUser?.role === 'admin' || currentUser?.role === 'owner')) {
+      router.push('/admin/dashboard')
+    }
+  }, [currentUser, isAuthenticated, router])
 
   // Resend timer countdown
   useEffect(() => {
@@ -146,8 +149,15 @@ export default function LoginPage() {
     const result = loginWithPassword(email || mobile, password)
     
     if (result.success) {
+      const signedInUser = useAuthStore.getState().currentUser
       setSuccess('Login successful! Redirecting...')
-      setTimeout(() => router.push('/account'), 1000)
+      setTimeout(() => {
+        if (signedInUser?.role === 'admin' || signedInUser?.role === 'owner') {
+          router.push('/admin/dashboard')
+          return
+        }
+        router.push('/account')
+      }, 1000)
     } else {
       setError(result.message)
     }

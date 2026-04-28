@@ -15,6 +15,9 @@ interface ProductCardProps {
   index?: number;
 }
 
+const fallbackProductImage =
+  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800";
+
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addItem } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
@@ -73,7 +76,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               transition={{ duration: 0.6 }}
             >
               <Image
-                src={product.images[0]}
+                src={product.images[0] || fallbackProductImage}
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
