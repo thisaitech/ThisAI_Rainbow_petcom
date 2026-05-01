@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Product } from '@/lib/store'
+import { loadProductCatalog } from '@/lib/productCatalogClient'
 import { AdminProduct, useAdminProductStore } from '@/store/useAdminProductStore'
 
 const fallbackStorefrontImage =
@@ -67,18 +68,9 @@ export function useStorefrontProducts() {
 
     const loadProducts = async () => {
       try {
-        const response = await fetch('/api/products', { cache: 'no-store' })
-        if (!response.ok) {
-          throw new Error('Live database catalog is not available right now.')
-        }
-
-        const data = (await response.json()) as {
-          products?: AdminProduct[]
-          configured?: boolean
-        }
+        const data = await loadProductCatalog()
         if (!cancelled) {
-          // When no database is configured, keep using the locally saved admin products.
-          setRemoteProducts(data.configured === false ? null : (data.products ?? []))
+          setRemoteProducts(data.products.length > 0 ? data.products : null)
         }
       } catch {
         if (!cancelled) {

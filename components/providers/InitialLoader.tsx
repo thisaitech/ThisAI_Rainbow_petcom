@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function InitialLoader({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [progress, setProgress] = useState(0)
-  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 900
@@ -27,13 +26,6 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
     requestAnimationFrame(updateProgress)
   }, [])
 
-  // Auto-play video
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {})
-    }
-  }, [])
-
   const rainbowColors = ['#FF6B6B', '#FF9F43', '#FECA57', '#48DBFB', '#0ABDE3', '#1DD1A1']
   const aquaColors = ['#00D2D3', '#01A3A4', '#0097A7', '#00838F']
 
@@ -50,22 +42,25 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden"
           >
-            {/* Background Video */}
             <div className="absolute inset-0 overflow-hidden">
-              <video
-                ref={videoRef}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ opacity: 0.15 }}
-              >
-                <source src="/videos/rinbow-loader-bird.mp4" type="video/mp4" />
-              </video>
-              {/* White overlay for better text readability */}
-              <div className="absolute inset-0 bg-white/60" />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 36%), radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.12), transparent 28%), linear-gradient(180deg, #ffffff 0%, #f0fdf4 48%, #eff6ff 100%)',
+                }}
+              />
+              <motion.div
+                className="absolute -left-10 top-16 h-40 w-40 rounded-full bg-cyan-200/30 blur-3xl"
+                animate={{ x: [0, 28, 0], y: [0, -18, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.div
+                className="absolute right-0 top-24 h-32 w-32 rounded-full bg-emerald-200/30 blur-3xl"
+                animate={{ x: [0, -24, 0], y: [0, 20, 0] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <div className="absolute inset-0 bg-white/55" />
             </div>
 
             {/* Center Content */}

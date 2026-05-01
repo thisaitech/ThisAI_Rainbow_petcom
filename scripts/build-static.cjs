@@ -7,6 +7,117 @@ const projectRoot = process.cwd();
 const apiDir = path.join(projectRoot, "app", "api");
 const backupRoot = fs.mkdtempSync(path.join(os.tmpdir(), "petshop-api-backup-"));
 const backupApiDir = path.join(backupRoot, "api");
+const exportDir = path.join(projectRoot, "out");
+const publicDir = path.join(projectRoot, "public");
+const serviceWorkerManifestPath = path.join(publicDir, "sw-assets.json");
+const exportedServiceWorkerManifestPath = path.join(exportDir, "sw-assets.json");
+const extraPrecacheAssets = ["/videos/rinbow-loader-bird.mp4", "/products.json"];
+
+const runCommand = (command, args, extraEnv = {}) => {
+  const result = spawnSync(command, args, {
+    cwd: projectRoot,
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      ...extraEnv,
+    },
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with status ${result.status ?? 1}`);
+  }
+};
+
+const runNpmScript = (scriptName, extraEnv = {}) => {
+  if (process.platform === "win32") {
+    runCommand("cmd.exe", ["/d", "/s", "/c", `npm run ${scriptName}`], extraEnv);
+    return;
+  }
+
+  runCommand("npm", ["run", scriptName], extraEnv);
+};
+
+const collectFiles = (directory) => {
+  if (!fs.existsSync(directory)) {
+    return [];
+  }
+
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
+
+  return entries.flatMap((entry) => {
+    const entryPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return collectFiles(entryPath);
+    }
+
+    return entry.isFile() ? [entryPath] : [];
+  });
+};
+
+const createServiceWorkerAssetManifest = () => {
+  const nextStaticDir = path.join(exportDir, "_next", "static");
+
+  if (!fs.existsSync(nextStaticDir)) {
+    return;
+  }
+
+  const assetPaths = collectFiles(nextStaticDir)
+    .map((filePath) => `/${path.relative(exportDir, filePath).split(path.sep).join("/")}`)
+    .filter((assetPath) => !assetPath.endsWith(".map"));
+
+  const manifest = JSON.stringify(
+    {
+      generatedAt: new Date().toISOString(),
+      assetPaths: [...new Set([...assetPaths, ...extraPrecacheAssets])].sort(),
+    },
+    null,
+    2
+  );
+
+  fs.writeFileSync(serviceWorkerManifestPath, manifest);
+  fs.writeFileSync(exportedServiceWorkerManifestPath, manifest);
+};
+
+const createStaticProductFeed = () => {
+  const tempCompileRoot = path.join(backupRoot, "static-feed-build");
+  const tscEntrypoint = path.join(
+    projectRoot,
+    "node_modules",
+    "typescript",
+    "bin",
+    "tsc"
+  );
+  const productFeedScript = path.join(projectRoot, "scripts", "generate-static-product-feed.ts");
+  const outProductFeedPath = path.join(exportDir, "products.json");
+
+  runCommand(
+    process.execPath,
+    [
+      tscEntrypoint,
+      productFeedScript,
+      path.join(projectRoot, "lib", "data.ts"),
+      path.join(projectRoot, "lib", "birdsAndFishData.ts"),
+      path.join(projectRoot, "lib", "store.ts"),
+      "--module",
+      "commonjs",
+      "--target",
+      "es2020",
+      "--moduleResolution",
+      "node",
+      "--esModuleInterop",
+      "--skipLibCheck",
+      "--outDir",
+      tempCompileRoot,
+    ]
+  );
+
+  runCommand(process.execPath, [path.join(tempCompileRoot, "scripts", "generate-static-product-feed.js"), outProductFeedPath]);
+};
 
 const restoreApiDir = () => {
   if (fs.existsSync(backupApiDir)) {
@@ -25,21 +136,13 @@ try {
     fs.rmSync(apiDir, { recursive: true, force: true });
   }
 
-  const result = spawnSync("npm", ["run", "build"], {
-    cwd: projectRoot,
-    stdio: "inherit",
-    shell: true,
-    env: {
-      ...process.env,
-      NEXT_STATIC_EXPORT: "true",
-    },
+  runNpmScript("build", {
+    NEXT_STATIC_EXPORT: "true",
+    NEXT_PUBLIC_STATIC_EXPORT: "true",
   });
-
   restoreApiDir();
-
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
+  createStaticProductFeed();
+  createServiceWorkerAssetManifest();
 } catch (error) {
   restoreApiDir();
   console.error(error instanceof Error ? error.message : error);

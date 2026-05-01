@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { seedCatalogProductIds, seedCatalogProductSkus } from '@/lib/adminCatalogSeed'
+import { seedCatalogProductIds, seedCatalogProductSkus, seedCatalogProducts } from '@/lib/adminCatalogSeed'
 
 export interface AdminProduct {
   id: string
@@ -30,7 +30,6 @@ interface AdminProductStore {
   removeProduct: (productId: string) => void
 }
 
-const initialProducts: AdminProduct[] = []
 const MAX_PERSISTED_IMAGE_LENGTH = 180000
 
 const inferProductType = (product: Partial<AdminProduct>): AdminProduct['productType'] => {
@@ -107,6 +106,22 @@ const sanitizeProductForPersistence = (product: AdminProduct): AdminProduct => (
   image: sanitizeImageForPersistence(product.image),
 })
 
+const mergeCatalogProducts = (persistedProducts: AdminProduct[]) => {
+  const mergedProducts = new Map<string, AdminProduct>()
+
+  for (const product of persistedProducts.map(normalizeProduct)) {
+    mergedProducts.set(product.id, product)
+  }
+
+  for (const product of seedCatalogProducts().map(normalizeProduct)) {
+    if (!mergedProducts.has(product.id)) {
+      mergedProducts.set(product.id, product)
+    }
+  }
+
+  return Array.from(mergedProducts.values())
+}
+
 const isSeedCatalogProduct = (product: Pick<AdminProduct, 'id' | 'sku'>) =>
   seedCatalogProductIds.has(product.id) || seedCatalogProductSkus.has(product.sku)
 
@@ -119,7 +134,7 @@ const getStatus = (stock: number): AdminProduct['status'] => {
 export const useAdminProductStore = create<AdminProductStore>()(
   persist(
     (set) => ({
-      products: initialProducts,
+      products: mergeCatalogProducts([]),
       setProducts: (products) =>
         set({
           products: products.map(normalizeProduct),
@@ -182,7 +197,7 @@ export const useAdminProductStore = create<AdminProductStore>()(
         return {
           ...currentState,
           ...persisted,
-          products: persistedProducts.map(normalizeProduct),
+          products: mergeCatalogProducts(persistedProducts),
         }
       },
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { 
@@ -13,6 +13,7 @@ import {
 import { useAuthStore, Order, UserCart } from '@/store/useAuthStore'
 import { formatPrice } from '@/lib/utils'
 import { AdminProduct, useAdminProductStore } from '@/store/useAdminProductStore'
+import { loadProductCatalog } from '@/lib/productCatalogClient'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -187,23 +188,27 @@ export default function AdminDashboard() {
     setProductForm((prev) => ({ ...prev, ...updates }))
   }
 
-  const syncProductsFromDatabase = async () => {
+  const syncProductsFromDatabase = useCallback(async () => {
     setIsSyncingProducts(true)
     setProductError('')
 
     try {
-      const response = await fetch('/api/products', { cache: 'no-store' })
-      const data = (await response.json()) as {
-        products?: AdminProduct[]
-        configured?: boolean
-        message?: string
+      const data = await loadProductCatalog()
+
+      if (data.source === 'api' && data.configured) {
+        setProducts(data.products ?? [])
+        setIsDatabaseConfigured(true)
+        setProductMessage('Live database catalog is connected.')
+        return
       }
 
-      if (!response.ok) {
+      if (data.products.length > 0) {
+        setProducts(data.products)
+      }
+
+      if (data.source === 'static-export') {
         setIsDatabaseConfigured(false)
-        if (data.message) {
-          setProductMessage('Demo mode active. Products save locally in this browser.')
-        }
+        setProductMessage('Static catalog loaded. Product changes save locally in this browser.')
         return
       }
 
@@ -212,21 +217,17 @@ export default function AdminDashboard() {
         setProductMessage(data.message || 'Demo mode active. Products save locally in this browser.')
         return
       }
-
-      setProducts(data.products ?? [])
-      setIsDatabaseConfigured(Boolean(data.configured))
-      setProductMessage('Live database catalog is connected.')
     } catch {
       setIsDatabaseConfigured(false)
       setProductMessage('Demo mode active. Products are saving locally in this browser.')
     } finally {
       setIsSyncingProducts(false)
     }
-  }
+  }, [setProducts])
 
   useEffect(() => {
     void syncProductsFromDatabase()
-  }, [])
+  }, [syncProductsFromDatabase])
 
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'owner')) {
     return null

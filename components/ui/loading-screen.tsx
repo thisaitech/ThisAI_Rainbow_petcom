@@ -20,7 +20,7 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({
   isLoading = true,
-  showVideo = true,
+  showVideo = false,
   minDuration = 2000,
   size = 'full',
   showProgress = true,
@@ -168,12 +168,12 @@ export function LoadingScreen({
             {!videoError && (
               <video
                 ref={videoRef}
-                src="/videos/rianbow loader bird.mp4"
+                src="/videos/rinbow-loader-bird.mp4"
                 muted
                 loop
                 playsInline
                 autoPlay
-                preload="auto"
+                preload="metadata"
                 onLoadedData={handleVideoLoad}
                 onError={handleVideoError}
                 className={`w-full h-full object-cover transition-opacity duration-400 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}

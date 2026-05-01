@@ -127,11 +127,12 @@ export default function PageLoader({ onLoadComplete }: PageLoaderProps) {
             >
               <video
                 ref={videoRef}
-                src="/videos/rinbow-loader.mp4"
+                src="/videos/rinbow-loader-bird.mp4"
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="metadata"
                 className="w-full h-full object-contain"
               />
             </div>
