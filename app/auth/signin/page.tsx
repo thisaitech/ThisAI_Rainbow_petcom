@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { signInWithDemoGoogle } from "@/lib/demo-social-auth";
+import { signInToFirebaseAdminSession } from "@/lib/firebase/auth";
+import { hasFirebaseClientConfig } from "@/lib/firebase/client";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SignInPage() {
@@ -70,6 +72,24 @@ export default function SignInPage() {
     }
 
     if (result.success && (signedInUser?.role === "admin" || signedInUser?.role === "owner")) {
+      if (hasFirebaseClientConfig) {
+        try {
+          await signInToFirebaseAdminSession(formData.email, formData.password);
+        } catch (firebaseError) {
+          logout();
+          toast({
+            title: "Firebase admin sign-in failed",
+            description:
+              firebaseError instanceof Error
+                ? firebaseError.message
+                : "Create the same admin user in Firebase Authentication before using the Firebase backend.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       toast({
         title: "Admin account detected",
         description: "Redirecting you to the admin dashboard.",

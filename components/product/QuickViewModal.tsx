@@ -298,7 +298,7 @@ export default function QuickViewModal() {
 
                   {/* View Full Details Link */}
                   <Link
-                    href={`/product/${product.slug}`}
+                    href={`/product?slug=${encodeURIComponent(product.slug)}`}
                     onClick={closeQuickView}
                     className="mt-4 text-center text-primary-500 font-medium hover:underline"
                   >

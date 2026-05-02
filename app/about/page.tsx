@@ -20,6 +20,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import PetCategoriesSection from '@/components/pets/PetCategoriesSection'
+import { businessProfile } from '@/lib/siteContent'
 
 const stats = [
   { icon: Heart, value: '1,00,000+', label: 'Happy Pets' },
@@ -405,7 +406,7 @@ export default function AboutPage() {
               viewport={{ once: true }}
             >
               <div className="bg-white rounded-3xl p-8 shadow-xl">
-                <h3 className="font-heading font-bold text-2xl mb-6">BowPaw Pet Store</h3>
+                <h3 className="font-heading font-bold text-2xl mb-6">{businessProfile.name}</h3>
                 
                 <div className="space-y-6">
                   <motion.div 
@@ -418,10 +419,8 @@ export default function AboutPage() {
                     <div>
                       <h4 className="font-semibold text-dark">Store Address</h4>
                       <p className="text-gray-600">
-                        No. 45, South Car Street,<br />
-                        Near Nellaiappar Temple,<br />
-                        Tirunelveli Town - 627006,<br />
-                        Tamil Nadu, India
+                        {businessProfile.addressLines[0]}<br />
+                        {businessProfile.addressLines[1]}
                       </p>
                     </div>
                   </motion.div>
@@ -436,9 +435,7 @@ export default function AboutPage() {
                     <div>
                       <h4 className="font-semibold text-dark">Phone</h4>
                       <p className="text-gray-600">
-                        Toll Free: 1800-123-PAWS<br />
-                        Local: +91 462 233 4567<br />
-                        WhatsApp: +91 98765 43210
+                        Call / WhatsApp: {businessProfile.phoneDisplay}
                       </p>
                     </div>
                   </motion.div>
@@ -453,9 +450,7 @@ export default function AboutPage() {
                     <div>
                       <h4 className="font-semibold text-dark">Email</h4>
                       <p className="text-gray-600">
-                        General: hello@bowpaw.in<br />
-                        Support: support@bowpaw.in<br />
-                        Orders: orders@bowpaw.in
+                        {businessProfile.email}
                       </p>
                     </div>
                   </motion.div>
@@ -470,9 +465,8 @@ export default function AboutPage() {
                     <div>
                       <h4 className="font-semibold text-dark">Store Hours</h4>
                       <p className="text-gray-600">
-                        Monday - Saturday: 9:00 AM - 9:00 PM<br />
-                        Sunday: 10:00 AM - 6:00 PM<br />
-                        <span className="text-secondary-500 font-medium">Online: 24/7</span>
+                        Open daily: 9 am-11 pm<br />
+                        <span className="text-secondary-500 font-medium">Please call to confirm live pet availability.</span>
                       </p>
                     </div>
                   </motion.div>
@@ -506,7 +500,7 @@ export default function AboutPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="BowPaw Store Location - Tirunelveli"
+                  title="Rainbow Aquarium & Pets Store Location - Tirunelveli"
                 />
               </div>
             </motion.div>
@@ -548,7 +542,7 @@ export default function AboutPage() {
                   <span>Browse Pets & Products</span>
                 </motion.button>
               </Link>
-              <a href="tel:1800123PAWS">
+              <a href={`tel:${businessProfile.phone}`}>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

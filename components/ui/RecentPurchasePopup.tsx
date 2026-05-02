@@ -96,7 +96,7 @@ export default function RecentPurchasePopup() {
 
             <div className="flex gap-3 p-3">
               {/* Product Image */}
-              <Link href={`/product/${purchase.product.slug}`} onClick={handleClose}>
+              <Link href={`/product?slug=${encodeURIComponent(purchase.product.slug)}`} onClick={handleClose}>
                 <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
                     src={purchase.product.images[0]}
@@ -114,7 +114,7 @@ export default function RecentPurchasePopup() {
                   <span>Someone just bought this!</span>
                 </div>
                 <Link 
-                  href={`/product/${purchase.product.slug}`} 
+                  href={`/product?slug=${encodeURIComponent(purchase.product.slug)}`} 
                   onClick={handleClose}
                   className="font-semibold text-sm text-dark hover:text-primary-500 
                              transition-colors line-clamp-1"

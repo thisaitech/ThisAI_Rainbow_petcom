@@ -133,7 +133,7 @@ export default function WishlistModal() {
                       </button>
 
                       <Link
-                        href={`/product/${item.product.slug}`}
+                        href={`/product?slug=${encodeURIComponent(item.product.slug)}`}
                         onClick={closeWishlist}
                         className="block"
                       >

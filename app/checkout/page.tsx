@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/lib/store";
+import { useAuthStore, type UserAddress } from "@/store/useAuthStore";
+import { saveOrderToFirebase } from "@/lib/firebase/orders";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 
@@ -33,8 +35,9 @@ const steps = [
 
 export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore();
+  const { currentUser, createOrder } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreedToWaiver, setAgreedToWaiver] = useState(false);
 
@@ -72,21 +75,84 @@ export default function CheckoutPage() {
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (paymentMethod === "razorpay") {
+      toast({
+        title: "Razorpay setup pending",
+        description: "Razorpay needs live/test keys and backend payment verification before it can accept payments. Please use COD for now.",
+        variant: "destructive",
+      });
+      return;
+    }
     setCurrentStep(3);
   };
 
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    if (paymentMethod === "razorpay") {
+      toast({
+        title: "Razorpay setup pending",
+        description: "Payment verification is not connected yet, so this order was not placed.",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    const shippingAddress: UserAddress = {
+      addressLine1: shippingInfo.address,
+      area: shippingInfo.city,
+      city: shippingInfo.city,
+      district: shippingInfo.city,
+      pincode: shippingInfo.pincode,
+      state: "Tamil Nadu",
+      country: "India",
+    };
+
+    const order = createOrder({
+      userId: currentUser?.id || `guest-${shippingInfo.phone || Date.now()}`,
+      userName:
+        currentUser?.name || `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
+      userEmail: currentUser?.email || shippingInfo.email,
+      userPhone: currentUser?.mobile || shippingInfo.phone,
+      items: items.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        productImage: item.product.images[0] || "",
+        price: item.product.price,
+        quantity: item.quantity,
+        variant: item.selectedVariants
+          ? Object.entries(item.selectedVariants)
+              .map(([name, value]) => `${name}: ${value}`)
+              .join(", ")
+          : undefined,
+      })),
+      subtotal,
+      shipping,
+      tax: 0,
+      total,
+      status: "pending",
+      shippingAddress,
+      paymentMethod: "COD",
+      paymentStatus: "pending",
+    });
+
+    const firebaseResult = await saveOrderToFirebase(order).catch(() => ({
+      saved: false,
+      message: "Order was saved locally, but Firebase order sync failed.",
+    }));
+
+    await new Promise((resolve) => setTimeout(resolve, 800));
     
     toast({
-      title: "Order Placed Successfully! 🎉",
-      description: "You'll receive an order confirmation email shortly.",
+      title: "Order Placed Successfully!",
+      description: firebaseResult.saved
+        ? `Your order ${order.id} is saved in Firebase and waiting for confirmation.`
+        : `Your order ${order.id} is saved locally. Firebase sync needs checking.`,
       variant: "success",
     });
     
     clearCart();
-    // In real app, redirect to order confirmation page
     setIsProcessing(false);
   };
 
@@ -327,7 +393,7 @@ export default function CheckoutPage() {
                         <div className="flex-1 text-left">
                           <p className="font-medium">Pay with Razorpay</p>
                           <p className="text-sm text-muted-foreground">
-                            Credit/Debit Card, UPI, Net Banking
+                            Credit/Debit Card, UPI, Net Banking. Backend verification pending.
                           </p>
                         </div>
                         <CreditCard className="w-6 h-6 text-secondary" />
@@ -404,6 +470,11 @@ export default function CheckoutPage() {
                     <h3 className="font-medium mb-2">Payment Method</h3>
                     <div className="bg-muted/50 rounded-lg p-4 text-sm">
                       <p>{paymentMethod === "razorpay" ? "Razorpay (Card/UPI/Net Banking)" : "Cash on Delivery"}</p>
+                      {paymentMethod === "razorpay" && (
+                        <p className="mt-2 text-xs text-coral">
+                          Razorpay is disabled until test/live keys and backend signature verification are configured.
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -496,7 +567,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
                   <Shield className="w-4 h-4 text-accent" />
-                  <span>Secure checkout powered by Razorpay</span>
+                  <span>{paymentMethod === "razorpay" ? "Razorpay setup pending" : "COD order will be saved for admin review"}</span>
                 </div>
               </div>
             </div>

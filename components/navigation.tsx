@@ -29,6 +29,7 @@ import { categories } from "@/lib/data";
 import { birdsAndFishCategory } from "@/lib/birdsAndFishData";
 import { cn } from "@/lib/utils";
 import { CartDrawer } from "./cart-drawer";
+import { businessProfile } from "@/lib/siteContent";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -170,7 +171,7 @@ export function Navigation() {
           <span className="hidden sm:inline mx-2">|</span>
           <span className="hidden sm:flex items-center gap-1">
             <Phone className="w-3 h-3" />
-            +91 98765 43210
+            {businessProfile.phoneDisplay}
           </span>
         </div>
       </motion.div>
@@ -615,11 +616,11 @@ export function Navigation() {
                 <div className="mt-4 pt-4 border-t flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Phone className="w-4 h-4" />
-                    +91 98765 43210
+                    {businessProfile.phoneDisplay}
                   </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
-                    Mumbai
+                    Tirunelveli
                   </span>
                 </div>
               </div>

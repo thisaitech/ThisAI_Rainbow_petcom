@@ -315,7 +315,7 @@ export default function WishlistPage() {
                         </label>
                       </div>
 
-                      <Link href={`/product/${item.product.slug}`}>
+                      <Link href={`/product?slug=${encodeURIComponent(item.product.slug)}`}>
                         <Image
                           src={item.product.images[0]}
                           alt={item.product.name}
@@ -351,7 +351,7 @@ export default function WishlistPage() {
 
                     {/* Content */}
                     <div className="p-4">
-                      <Link href={`/product/${item.product.slug}`}>
+                      <Link href={`/product?slug=${encodeURIComponent(item.product.slug)}`}>
                         <h3 className="font-medium text-dark hover:text-primary-500 transition-colors line-clamp-2 mb-2">
                           {item.product.name}
                         </h3>

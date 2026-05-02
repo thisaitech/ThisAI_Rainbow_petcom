@@ -431,7 +431,7 @@ export const testimonials = [
   {
     id: 1,
     name: "Rajesh Sharma",
-    location: "Mumbai",
+    location: "Tirunelveli",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
     rating: 5,
     text: "Amazing quality cloned Arowana! The fish arrived healthy and is thriving in my tank. Rainbow Aqua and Pets's live arrival guarantee gave me confidence to order.",
@@ -540,7 +540,7 @@ export const faqs = [
     answer: "We accept all major credit/debit cards, UPI payments, net banking, and Cash on Delivery (COD) for orders under ₹50,000.",
   },
   {
-    question: "Can I visit your store in Mumbai?",
-    answer: "Absolutely! Our flagship store is located in Mumbai. You can visit to see our fish in person and get expert advice from our team.",
+    question: "Can I visit your store in Tirunelveli?",
+    answer: "Absolutely! You can visit Rainbow Aquarium & Pets in Palayamkottai, Tirunelveli to see products in person and get help from the team.",
   },
 ];

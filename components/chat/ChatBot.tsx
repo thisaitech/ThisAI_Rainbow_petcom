@@ -8,6 +8,7 @@ import {
   HelpCircle, Truck, CreditCard, RefreshCw
 } from 'lucide-react'
 import Image from 'next/image'
+import { businessProfile } from '@/lib/siteContent'
 
 interface Message {
   id: string
@@ -87,15 +88,15 @@ const qaDatabase: Record<string, { answer: string; quickReplies?: string[] }> = 
 
   // Store & Contact
   'store location': { 
-    answer: "Visit us! 📍\n\n🏪 BowPaw Pet Store\nMain Road, Tirunelveli\nTamil Nadu - 627001\n\n⏰ Open: 9 AM - 9 PM (All days)\n📞 1800-123-PAWS (Toll free)",
+    answer: `Visit us! 📍\n\n🏪 ${businessProfile.name}\n${businessProfile.addressLines.join('\n')}\n\n⏰ Open: 9 am-11 pm daily\n📞 ${businessProfile.phoneDisplay}`,
     quickReplies: ['Get directions', 'Store hours', 'Call store']
   },
   'contact': { 
-    answer: "Get in touch! 📞\n\n☎️ 1800-123-PAWS (Toll free)\n📱 +91 98765 43210 (WhatsApp)\n📧 hello@bowpaw.com\n\nWe respond within 30 mins!",
+    answer: `Get in touch! 📞\n\n📱 ${businessProfile.phoneDisplay}\n📧 ${businessProfile.email}\n📍 ${businessProfile.addressLines.join(', ')}\n\nWe respond as quickly as possible during store hours.`,
     quickReplies: ['Call now', 'WhatsApp', 'Email us']
   },
   'contact support': { 
-    answer: "Support options! 🤝\n\n📞 Call: 1800-123-PAWS\n💬 WhatsApp: +91 98765 43210\n📧 Email: support@bowpaw.com\n\nAvailable 9 AM - 9 PM!",
+    answer: `Support options! 🤝\n\n📞 Call/WhatsApp: ${businessProfile.phoneDisplay}\n📧 Email: ${businessProfile.email}\n\nAvailable 9 am-11 pm daily.`,
     quickReplies: ['Call now', 'Email', 'Live chat']
   },
 
@@ -147,7 +148,7 @@ const qaDatabase: Record<string, { answer: string; quickReplies?: string[] }> = 
 
   // Talk to human
   'talk to human': { 
-    answer: "Sure! Connect with our team! 🤝\n\n📞 Call: 1800-123-PAWS\n💬 WhatsApp: +91 98765 43210\n\nOur pet experts are available 9 AM - 9 PM!",
+    answer: `Sure! Connect with our team! 🤝\n\n📞 Call/WhatsApp: ${businessProfile.phoneDisplay}\n📧 Email: ${businessProfile.email}\n\nOur pet experts are available 9 am-11 pm daily.`,
     quickReplies: ['Call now', 'WhatsApp', 'Email']
   },
 }

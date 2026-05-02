@@ -150,7 +150,7 @@ export default function CartSidebar() {
                     >
                       {/* Product Image */}
                       <Link 
-                        href={`/product/${item.product.slug}`}
+                        href={`/product?slug=${encodeURIComponent(item.product.slug)}`}
                         onClick={closeCart}
                         className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden"
                       >
@@ -165,7 +165,7 @@ export default function CartSidebar() {
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
                         <Link 
-                          href={`/product/${item.product.slug}`}
+                          href={`/product?slug=${encodeURIComponent(item.product.slug)}`}
                           onClick={closeCart}
                           className="font-semibold text-sm line-clamp-2 hover:text-primary-500 transition-colors"
                         >

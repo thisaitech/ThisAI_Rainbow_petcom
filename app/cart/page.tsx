@@ -91,7 +91,7 @@ export default function CartPage() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <Link href={`/product/${item.product.slug}`}>
+                          <Link href={`/product?slug=${encodeURIComponent(item.product.slug)}`}>
                             <h3 className="font-semibold text-lg hover:text-secondary transition-colors">
                               {item.product.name}
                             </h3>
@@ -225,7 +225,7 @@ export default function CartPage() {
                       ✓ 100% Live Arrival Guarantee
                     </p>
                     <p className="flex items-center gap-2">
-                      ✓ Secure Payment (Razorpay)
+                      ✓ COD available. Razorpay setup pending
                     </p>
                     <p className="flex items-center gap-2">
                       ✓ COD Available (Under ₹50,000)

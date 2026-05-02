@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { signOutFirebaseSession } from '@/lib/firebase/auth'
 
 export type UserRole = 'guest' | 'user' | 'owner' | 'admin'
 export type AccountStatus = 'active' | 'inactive' | 'suspended'
@@ -593,6 +594,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        void signOutFirebaseSession()
         set({ currentUser: null, isAuthenticated: false, otpSession: null })
       },
 

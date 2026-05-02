@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Fish,
@@ -19,11 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { businessProfile, type BusinessProfile } from "@/lib/siteContent";
+import { loadFirebaseSiteContent } from "@/lib/firebase/siteContent";
 
 const features = [
   { icon: Truck, title: "Free Shipping", desc: "On orders over ₹2000" },
   { icon: Shield, title: "Live Arrival", desc: "100% Guarantee" },
-  { icon: CreditCard, title: "Secure Payment", desc: "Razorpay & COD" },
+  { icon: CreditCard, title: "Payment Options", desc: "COD now, Razorpay pending" },
   { icon: Headphones, title: "24/7 Support", desc: "Expert Help" },
 ];
 
@@ -59,6 +62,22 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const [profile, setProfile] = useState<BusinessProfile>(businessProfile);
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadFirebaseSiteContent().then((content) => {
+      if (mounted) {
+        setProfile(content.businessProfile);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <footer className="bg-primary text-white safe-area-bottom">
       {/* Features Bar */}
@@ -98,11 +117,11 @@ export function Footer() {
               </div>
               <div>
                 <h2 className="font-display text-lg sm:text-2xl font-bold">Rainbow Aqua</h2>
-                <p className="text-[10px] sm:text-xs text-white/60">Premium Fish & Pets</p>
+                <p className="text-[10px] sm:text-xs text-white/60">{profile.category}</p>
               </div>
             </Link>
             <p className="text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 max-w-sm">
-              India&apos;s premier destination for premium aquarium fish and pets.
+              {profile.name} is your local Tirunelveli destination for aquarium fish, birds, pet food, and pet care supplies.
             </p>
             <div className="flex gap-2 sm:gap-3">
               <a href="#" className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all">
@@ -177,18 +196,18 @@ export function Footer() {
               </Button>
             </div>
             <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-white/70">
-              <a href="tel:+919876543210" className="flex items-center gap-2 py-1 hover:text-secondary active:text-secondary transition-colors">
+              <a href={`tel:${profile.phone}`} className="flex items-center gap-2 py-1 hover:text-secondary active:text-secondary transition-colors">
                 <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary flex-shrink-0" />
-                +91 98765 43210
+                {profile.phoneDisplay}
               </a>
-              <a href="mailto:hello@aquapethaven.in" className="flex items-center gap-2 py-1 hover:text-secondary active:text-secondary transition-colors">
+              <a href={`mailto:${profile.email}`} className="flex items-center gap-2 py-1 hover:text-secondary active:text-secondary transition-colors">
                 <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary flex-shrink-0" />
-                hello@aquapethaven.in
+                {profile.email}
               </a>
-              <p className="flex items-center gap-2">
+              <a href={profile.directionsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-1 hover:text-secondary active:text-secondary transition-colors">
                 <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary flex-shrink-0" />
-                Mumbai, India
-              </p>
+                Tirunelveli, Tamil Nadu
+              </a>
             </div>
           </div>
         </div>

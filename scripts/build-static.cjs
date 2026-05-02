@@ -11,7 +11,7 @@ const exportDir = path.join(projectRoot, "out");
 const publicDir = path.join(projectRoot, "public");
 const serviceWorkerManifestPath = path.join(publicDir, "sw-assets.json");
 const exportedServiceWorkerManifestPath = path.join(exportDir, "sw-assets.json");
-const extraPrecacheAssets = ["/videos/rinbow-loader-bird.mp4", "/products.json"];
+const extraPrecacheAssets = ["/videos/rinbow-loader-bird.mp4"];
 
 const runCommand = (command, args, extraEnv = {}) => {
   const result = spawnSync(command, args, {
@@ -83,42 +83,6 @@ const createServiceWorkerAssetManifest = () => {
   fs.writeFileSync(exportedServiceWorkerManifestPath, manifest);
 };
 
-const createStaticProductFeed = () => {
-  const tempCompileRoot = path.join(backupRoot, "static-feed-build");
-  const tscEntrypoint = path.join(
-    projectRoot,
-    "node_modules",
-    "typescript",
-    "bin",
-    "tsc"
-  );
-  const productFeedScript = path.join(projectRoot, "scripts", "generate-static-product-feed.ts");
-  const outProductFeedPath = path.join(exportDir, "products.json");
-
-  runCommand(
-    process.execPath,
-    [
-      tscEntrypoint,
-      productFeedScript,
-      path.join(projectRoot, "lib", "data.ts"),
-      path.join(projectRoot, "lib", "birdsAndFishData.ts"),
-      path.join(projectRoot, "lib", "store.ts"),
-      "--module",
-      "commonjs",
-      "--target",
-      "es2020",
-      "--moduleResolution",
-      "node",
-      "--esModuleInterop",
-      "--skipLibCheck",
-      "--outDir",
-      tempCompileRoot,
-    ]
-  );
-
-  runCommand(process.execPath, [path.join(tempCompileRoot, "scripts", "generate-static-product-feed.js"), outProductFeedPath]);
-};
-
 const restoreApiDir = () => {
   if (fs.existsSync(backupApiDir)) {
     if (fs.existsSync(apiDir)) {
@@ -141,7 +105,6 @@ try {
     NEXT_PUBLIC_STATIC_EXPORT: "true",
   });
   restoreApiDir();
-  createStaticProductFeed();
   createServiceWorkerAssetManifest();
 } catch (error) {
   restoreApiDir();

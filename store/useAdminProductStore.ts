@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { seedCatalogProductIds, seedCatalogProductSkus, seedCatalogProducts } from '@/lib/adminCatalogSeed'
 
 export interface AdminProduct {
   id: string
@@ -106,25 +105,6 @@ const sanitizeProductForPersistence = (product: AdminProduct): AdminProduct => (
   image: sanitizeImageForPersistence(product.image),
 })
 
-const mergeCatalogProducts = (persistedProducts: AdminProduct[]) => {
-  const mergedProducts = new Map<string, AdminProduct>()
-
-  for (const product of persistedProducts.map(normalizeProduct)) {
-    mergedProducts.set(product.id, product)
-  }
-
-  for (const product of seedCatalogProducts().map(normalizeProduct)) {
-    if (!mergedProducts.has(product.id)) {
-      mergedProducts.set(product.id, product)
-    }
-  }
-
-  return Array.from(mergedProducts.values())
-}
-
-const isSeedCatalogProduct = (product: Pick<AdminProduct, 'id' | 'sku'>) =>
-  seedCatalogProductIds.has(product.id) || seedCatalogProductSkus.has(product.sku)
-
 const getStatus = (stock: number): AdminProduct['status'] => {
   if (stock <= 0) return 'Out of Stock'
   if (stock <= 10) return 'Low Stock'
@@ -134,7 +114,7 @@ const getStatus = (stock: number): AdminProduct['status'] => {
 export const useAdminProductStore = create<AdminProductStore>()(
   persist(
     (set) => ({
-      products: mergeCatalogProducts([]),
+      products: [],
       setProducts: (products) =>
         set({
           products: products.map(normalizeProduct),
@@ -184,20 +164,15 @@ export const useAdminProductStore = create<AdminProductStore>()(
     {
       name: 'admin-product-store',
       partialize: (state) => ({
-        products: state.products
-          .filter((product) => !isSeedCatalogProduct(product))
-          .map(sanitizeProductForPersistence),
+        products: state.products.map(sanitizeProductForPersistence),
       }),
       merge: (persistedState, currentState) => {
         const persisted = persistedState as Partial<AdminProductStore>
-        const persistedProducts = (persisted.products ?? []).filter(
-          (product) => !isSeedCatalogProduct(product)
-        )
 
         return {
           ...currentState,
           ...persisted,
-          products: mergeCatalogProducts(persistedProducts),
+          products: (persisted.products ?? []).map(normalizeProduct),
         }
       },
     }

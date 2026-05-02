@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -37,8 +38,11 @@ const fallbackProductImage =
   "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800";
 
 export default function ProductPageClient({ slug }: ProductPageClientProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const resolvedSlug = slug || searchParams.get("slug") || pathname.split("/").filter(Boolean).pop() || "";
   const { allProducts, isLoading } = useStorefrontProducts();
-  const product = allProducts.find((p) => p.slug === slug);
+  const product = allProducts.find((p) => p.slug === resolvedSlug);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);

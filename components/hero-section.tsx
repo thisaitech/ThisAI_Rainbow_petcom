@@ -6,55 +6,33 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Shield, Truck, Fish, Bird, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-
-const heroSlides = [
-  {
-    title: "Premium Aquarium Fish",
-    subtitle: "🐠 Exotic & Cloned Specimens",
-    description: "Discover our stunning collection of premium cloned fish, tropical species, and rare exotic breeds. Every fish is carefully selected for perfect genetics and vibrant colors.",
-    cta: "Explore Fish",
-    link: "/shop/aquarium-fish",
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920",
-    badge: "🧬 CLONED FISH",
-  },
-  {
-    title: "Exotic Birds Collection",
-    subtitle: "🦜 Beautiful Feathered Friends",
-    description: "From colorful parrots to melodious canaries, find your perfect winged companion. Hand-raised with love and expert care for a healthy, happy pet.",
-    cta: "Shop Birds",
-    link: "/shop/birds",
-    image: "https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=1920",
-    badge: "🐦 BIRDS",
-  },
-  {
-    title: "Arowana & Discus",
-    subtitle: "👑 The Kings of Aquarium",
-    description: "Own the most prestigious aquarium fish. Our cloned Asian Arowanas and Blue Diamond Discus feature championship genetics and breathtaking beauty.",
-    cta: "View Premium",
-    link: "/shop/aquarium-fish/cloned-fish",
-    image: "https://images.unsplash.com/photo-1520302630591-fd1c66edc19d?w=1920",
-    badge: "✨ PREMIUM",
-  },
-  {
-    title: "Complete Pet Care",
-    subtitle: "🏠 Everything Your Pet Needs",
-    description: "Aquariums, cages, food, accessories, and more. Get professional-grade equipment and supplies for happy, healthy pets.",
-    cta: "Shop All",
-    link: "/shop",
-    image: "https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1920",
-    badge: "🛒 FULL RANGE",
-  },
-];
+import { homeHeroSlides, type HeroSlideContent } from "@/lib/siteContent";
+import { loadFirebaseSiteContent } from "@/lib/firebase/siteContent";
 
 export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [heroSlides, setHeroSlides] = useState<HeroSlideContent[]>(homeHeroSlides);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % heroSlides.length);
     }, 5000); // 5 seconds autoplay - consistent with all carousels
     return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadFirebaseSiteContent().then((content) => {
+      if (mounted) {
+        setHeroSlides(content.homeHeroSlides);
+        setCurrentIndex(0);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const slide = heroSlides[currentIndex];

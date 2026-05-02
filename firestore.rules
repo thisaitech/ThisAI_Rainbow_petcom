@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isProductAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email in ['admin@bowpaw.com', 'owner@bowpaw.com'];
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isProductAdmin();
+    }
+
+    match /siteContent/{documentId} {
+      allow read: if true;
+      allow create, update, delete: if isProductAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isProductAdmin();
+    }
+  }
+}

@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isProductAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email in ['admin@bowpaw.com', 'owner@bowpaw.com'];
+    }
+
+    match /product-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if isProductAdmin();
+    }
+  }
+}

@@ -101,7 +101,7 @@ function ProductCard({ product, className }: { product: Product; className?: str
   const discount = product.originalPrice ? getDiscountPercentage(product.originalPrice, product.price) : 0
 
   return (
-    <Link href={`/product/${product.slug}`} className={cn("block h-full select-none touch-manipulation", className)} draggable={false}>
+    <Link href={`/product?slug=${encodeURIComponent(product.slug)}`} className={cn("block h-full select-none touch-manipulation", className)} draggable={false}>
       <div 
         className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-100 h-full flex flex-col shadow-sm hover:shadow-xl active:scale-[0.98] transition-all duration-300"
         onMouseEnter={() => setIsHovered(true)}

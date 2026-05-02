@@ -20,47 +20,16 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { testimonials } from "@/lib/data";
+import { businessProfile, customerReviews, type CustomerReview } from "@/lib/siteContent";
+import { loadFirebaseSiteContent } from "@/lib/firebase/siteContent";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 
-// Extended testimonials with more data
-const extendedTestimonials = [
-  ...testimonials,
-  {
-    id: 6,
-    name: "Arun Patel",
-    location: "Chennai",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-    rating: 5,
-    text: "The cloned Discus fish I received are absolutely stunning! The colors are vibrant and they're thriving in my tank. Best purchase ever!",
-    product: "Blue Diamond Discus",
-  },
-  {
-    id: 7,
-    name: "Meera Sharma",
-    location: "Pune",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
-    rating: 5,
-    text: "Amazing service! The birds arrived healthy and happy. The care guide provided was incredibly helpful. Highly recommend!",
-    product: "Exotic Parakeet Pair",
-  },
-  {
-    id: 8,
-    name: "Karthik R",
-    location: "Coimbatore",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
-    rating: 4,
-    text: "Great quality aquarium accessories. The filter system works perfectly and the customer support team is very responsive.",
-    product: "Premium Canister Filter",
-  },
-];
-
 interface TestimonialModalProps {
-  testimonial: typeof extendedTestimonials[0];
+  testimonial: CustomerReview;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -246,8 +215,27 @@ export function Testimonials() {
   const swiperRef = useRef<SwiperType | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-  const [selectedTestimonial, setSelectedTestimonial] = useState<typeof extendedTestimonials[0] | null>(null);
+  const [reviews, setReviews] = useState<CustomerReview[]>(customerReviews);
+  const [rating, setRating] = useState(businessProfile.rating);
+  const [reviewCount, setReviewCount] = useState(businessProfile.reviewCount);
+  const [selectedTestimonial, setSelectedTestimonial] = useState<CustomerReview | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadFirebaseSiteContent().then((content) => {
+      if (mounted) {
+        setReviews(content.customerReviews);
+        setRating(content.businessProfile.rating);
+        setReviewCount(content.businessProfile.reviewCount);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section 
@@ -353,9 +341,9 @@ export function Testimonials() {
             className="flex flex-wrap justify-center gap-8 mt-8"
           >
             {[
-              { value: "15K+", label: "Happy Customers", icon: "😊" },
-              { value: "4.9", label: "Average Rating", icon: "⭐" },
-              { value: "98%", label: "Satisfaction", icon: "💯" },
+              { value: `${reviewCount}+`, label: "Google Reviews", icon: "😊" },
+              { value: rating.toFixed(1), label: "Google Rating", icon: "⭐" },
+              { value: "9AM-11PM", label: "Open Daily", icon: "💯" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -439,7 +427,7 @@ export function Testimonials() {
             }}
             className="testimonials-swiper pb-14"
           >
-            {extendedTestimonials.map((testimonial, index) => (
+            {reviews.map((testimonial) => (
               <SwiperSlide key={testimonial.id}>
                 <motion.div
                   whileHover={{ y: -8, scale: 1.02 }}

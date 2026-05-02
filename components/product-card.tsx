@@ -61,7 +61,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       whileHover={{ y: -8 }}
       className="h-full"
     >
-      <Link href={`/product/${product.slug}`}>
+      <Link href={`/product?slug=${encodeURIComponent(product.slug)}`}>
         <motion.div 
           className="group bg-card rounded-2xl overflow-hidden border shadow-sm hover:shadow-2xl transition-all duration-500 h-full flex flex-col"
           whileHover={{ 

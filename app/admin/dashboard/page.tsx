@@ -11,6 +11,12 @@ import {
   Plus, Pencil, Trash2, X, Save
 } from 'lucide-react'
 import { useAuthStore, Order, UserCart } from '@/store/useAuthStore'
+import { signOutFirebaseSession } from '@/lib/firebase/auth'
+import { hasFirebaseClientConfig } from '@/lib/firebase/client'
+import {
+  deleteProductFromFirebase,
+  saveProductToFirebase,
+} from '@/lib/firebase/products'
 import { formatPrice } from '@/lib/utils'
 import { AdminProduct, useAdminProductStore } from '@/store/useAdminProductStore'
 import { loadProductCatalog } from '@/lib/productCatalogClient'
@@ -163,8 +169,7 @@ export default function AdminDashboard() {
   const [productImagePreview, setProductImagePreview] = useState('')
   const [isSavingProduct, setIsSavingProduct] = useState(false)
   const [isSyncingProducts, setIsSyncingProducts] = useState(false)
-  const [isImportingCatalog, setIsImportingCatalog] = useState(false)
-  const [isDatabaseConfigured, setIsDatabaseConfigured] = useState(false)
+  const [isCatalogBackendConfigured, setIsCatalogBackendConfigured] = useState(false)
   const [productMessage, setProductMessage] = useState('')
   const [productError, setProductError] = useState('')
 
@@ -188,17 +193,17 @@ export default function AdminDashboard() {
     setProductForm((prev) => ({ ...prev, ...updates }))
   }
 
-  const syncProductsFromDatabase = useCallback(async () => {
+  const syncProductsFromCatalog = useCallback(async () => {
     setIsSyncingProducts(true)
     setProductError('')
 
     try {
       const data = await loadProductCatalog()
 
-      if (data.source === 'api' && data.configured) {
+      if (data.source === 'firebase' && data.configured) {
         setProducts(data.products ?? [])
-        setIsDatabaseConfigured(true)
-        setProductMessage('Live database catalog is connected.')
+        setIsCatalogBackendConfigured(true)
+        setProductMessage('Firebase catalog is connected.')
         return
       }
 
@@ -207,27 +212,31 @@ export default function AdminDashboard() {
       }
 
       if (data.source === 'static-export') {
-        setIsDatabaseConfigured(false)
-        setProductMessage('Static catalog loaded. Product changes save locally in this browser.')
+        setIsCatalogBackendConfigured(false)
+        setProductMessage(
+          'Static catalog loaded. Connect Firebase to sync product changes across devices.'
+        )
         return
       }
 
       if (data.configured === false) {
-        setIsDatabaseConfigured(false)
-        setProductMessage(data.message || 'Demo mode active. Products save locally in this browser.')
+        setIsCatalogBackendConfigured(false)
+        setProductMessage(
+          data.message || 'Firebase is not configured yet. Products save locally in this browser.'
+        )
         return
       }
     } catch {
-      setIsDatabaseConfigured(false)
-      setProductMessage('Demo mode active. Products are saving locally in this browser.')
+      setIsCatalogBackendConfigured(false)
+      setProductMessage('Firebase is not available right now. Products are saving locally in this browser.')
     } finally {
       setIsSyncingProducts(false)
     }
   }, [setProducts])
 
   useEffect(() => {
-    void syncProductsFromDatabase()
-  }, [syncProductsFromDatabase])
+    void syncProductsFromCatalog()
+  }, [syncProductsFromCatalog])
 
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'owner')) {
     return null
@@ -284,6 +293,7 @@ export default function AdminDashboard() {
   }
 
   const handleLogout = () => {
+    void signOutFirebaseSession()
     logout()
     router.push('/admin/login')
   }
@@ -355,42 +365,23 @@ export default function AdminDashboard() {
     setIsSavingProduct(true)
     setProductError('')
 
-    const formData = new FormData()
-    formData.set('name', payload.name)
-    formData.set('category', payload.category)
-    formData.set('subcategory', payload.subcategory)
-    formData.set('description', payload.description)
-    formData.set('price', String(payload.price))
-    formData.set('stock', String(payload.stock))
-    formData.set('sku', payload.sku)
-    formData.set('image', payload.image)
-    formData.set('featured', String(payload.featured))
-    formData.set('previousImage', editingProduct?.image || '')
-
     if (productImageFile) {
-      formData.set('imageFile', productImageFile)
+      payload.image = productImagePreview
     }
 
     try {
-      const response = await fetch(
-        editingProduct ? `/api/admin/products/${editingProduct.id}` : '/api/admin/products',
-        {
-          method: editingProduct ? 'PUT' : 'POST',
-          body: formData,
-        }
-      )
-
-      const data = (await response.json()) as {
-        product?: AdminProduct
-        message?: string
+      if (!hasFirebaseClientConfig) {
+        throw new Error('Firebase is not configured yet.')
       }
 
-      if (!response.ok || !data.product) {
-        throw new Error(data.message || 'Failed to save product to database.')
-      }
+      const data = await saveProductToFirebase({
+        product: payload,
+        imageFile: productImageFile,
+        existingProduct: editingProduct,
+      })
 
       upsertProduct(data.product)
-      setIsDatabaseConfigured(true)
+      setIsCatalogBackendConfigured(true)
       setProductMessage(data.message || 'Product saved successfully.')
       setShowProductForm(false)
       resetProductEditor()
@@ -421,8 +412,13 @@ export default function AdminDashboard() {
         addProduct(localPayload)
       }
 
+      setIsCatalogBackendConfigured(false)
       setProductMessage(
-        'Saved locally in demo mode.'
+        hasFirebaseClientConfig
+          ? error instanceof Error
+            ? `${error.message} Saved locally as a fallback.`
+            : 'Saved locally because Firebase was not available.'
+          : 'Firebase is not configured yet. Saved locally in this browser.'
       )
       setShowProductForm(false)
       resetProductEditor()
@@ -435,55 +431,24 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to remove this product?')) return
 
     try {
-      if (isDatabaseConfigured) {
-        const response = await fetch(`/api/admin/products/${productId}`, {
-          method: 'DELETE',
-        })
-        const data = (await response.json()) as { message?: string }
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to delete product from database.')
-        }
+      if (hasFirebaseClientConfig) {
+        await deleteProductFromFirebase(productId)
+        setProductMessage('Product removed from Firebase.')
+      } else {
+        setProductMessage('Firebase is not configured yet. Removed locally in this browser.')
       }
     } catch (error) {
+      setIsCatalogBackendConfigured(false)
       setProductMessage(
         error instanceof Error
           ? `${error.message} Removed locally as a fallback.`
-          : 'Removed locally because the database was not available.'
+          : 'Removed locally because Firebase was not available.'
       )
     }
 
     removeProduct(productId)
     if (selectedProduct?.id === productId) {
       setSelectedProduct(null)
-    }
-  }
-
-  const handleImportExistingCatalog = async () => {
-    setIsImportingCatalog(true)
-    setProductError('')
-
-    try {
-      const response = await fetch('/api/admin/products/seed', {
-        method: 'POST',
-      })
-      const data = (await response.json()) as { message?: string; configured?: boolean }
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to import the existing catalog.')
-      }
-
-      setProductMessage(data.message || 'Existing catalog imported successfully.')
-
-      if (data.configured) {
-        await syncProductsFromDatabase()
-      }
-    } catch (error) {
-      setProductMessage(
-        error instanceof Error ? error.message : 'Default catalog is already available locally.'
-      )
-    } finally {
-      setIsImportingCatalog(false)
     }
   }
 
@@ -693,14 +658,6 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-500">Add products, update details, remove items, and manage the website catalog from here.</p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => void handleImportExistingCatalog()}
-                  disabled={isImportingCatalog}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isImportingCatalog ? 'animate-spin' : ''}`} />
-                  {isImportingCatalog ? 'Importing...' : 'Import Existing Catalog'}
-                </button>
                 <button
                   onClick={openCreateProduct}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary-500/30 hover:bg-primary-600"

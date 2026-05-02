@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "./product-card";
-import { products } from "@/lib/data";
 import { Product } from "@/lib/store";
+import { useStorefrontProducts } from "@/lib/useStorefrontProducts";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -30,9 +30,10 @@ export function ProductGrid({
   viewAllLink = "/shop",
   columns = 4,
 }: ProductGridProps) {
+  const { storefrontProducts } = useStorefrontProducts();
   const filteredProducts = filter
-    ? products.filter(filter).slice(0, limit)
-    : products.slice(0, limit);
+    ? storefrontProducts.filter(filter).slice(0, limit)
+    : storefrontProducts.slice(0, limit);
 
   const gridCols = {
     2: "grid-cols-2",

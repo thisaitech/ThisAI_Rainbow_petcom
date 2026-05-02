@@ -55,7 +55,7 @@ export default function ProductCard({ product, index = 0, variant = 'default' }:
         transition={{ delay: index * 0.05 }}
         className="card card-hover flex gap-4 p-4"
       >
-        <Link href={`/product/${product.slug}`} className="relative w-32 h-32 flex-shrink-0">
+        <Link href={`/product?slug=${encodeURIComponent(product.slug)}`} className="relative w-32 h-32 flex-shrink-0">
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -69,7 +69,7 @@ export default function ProductCard({ product, index = 0, variant = 'default' }:
           )}
         </Link>
         <div className="flex-1 min-w-0">
-          <Link href={`/product/${product.slug}`}>
+          <Link href={`/product?slug=${encodeURIComponent(product.slug)}`}>
             <h3 className="font-heading font-semibold text-dark hover:text-primary-500 transition-colors line-clamp-2">
               {product.name}
             </h3>
@@ -124,7 +124,7 @@ export default function ProductCard({ product, index = 0, variant = 'default' }:
     >
       <div className="card overflow-hidden shadow-parallax sm:tilt-3d">
         {/* Image Container */}
-        <Link href={`/product/${product.slug}`} className="block relative aspect-square overflow-hidden">
+        <Link href={`/product?slug=${encodeURIComponent(product.slug)}`} className="block relative aspect-square overflow-hidden">
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -224,7 +224,7 @@ export default function ProductCard({ product, index = 0, variant = 'default' }:
           <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider mb-0.5 sm:mb-1">
             {product.brand}
           </p>
-          <Link href={`/product/${product.slug}`}>
+          <Link href={`/product?slug=${encodeURIComponent(product.slug)}`}>
             <h3 className="font-heading font-semibold text-sm sm:text-base text-dark hover:text-primary-500 
                            transition-colors line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
               {product.name}

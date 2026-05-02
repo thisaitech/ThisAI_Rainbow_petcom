@@ -507,7 +507,7 @@ function ProductCard({ product, index, viewMode }: { product: any, index: number
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: Math.min(index * 0.02, 0.3) }}
       >
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product?slug=${encodeURIComponent(product.slug)}`}>
           <div className="bg-white rounded-xl shadow-sm overflow-hidden flex hover:shadow-lg transition-shadow active:bg-gray-50 touch-manipulation">
             {/* Image - Responsive sizing */}
             <div className="relative w-24 h-24 sm:w-36 sm:h-36 md:w-44 md:h-44 flex-shrink-0 bg-gray-100">
@@ -585,7 +585,7 @@ function ProductCard({ product, index, viewMode }: { product: any, index: number
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: Math.min(index * 0.02, 0.3) }}
     >
-      <Link href={`/product/${product.slug}`}>
+      <Link href={`/product?slug=${encodeURIComponent(product.slug)}`}>
         <div 
           className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden hover:shadow-xl active:shadow-md transition-all duration-300 h-full flex flex-col group touch-manipulation"
           onMouseEnter={() => setIsHovered(true)}

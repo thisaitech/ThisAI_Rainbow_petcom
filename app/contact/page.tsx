@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -20,35 +20,11 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/components/ui/use-toast";
 import { faqs } from "@/lib/data";
-
-const contactInfo = [
-  {
-    icon: MapPin,
-    title: "Visit Our Store",
-    details: ["Rainbow Aqua and Pets", "Shop No. 42, Fish Market Road", "Andheri West, Mumbai 400058"],
-    color: "text-coral",
-  },
-  {
-    icon: Phone,
-    title: "Call Us",
-    details: ["+91 98765 43210", "+91 22 1234 5678"],
-    color: "text-secondary",
-  },
-  {
-    icon: Mail,
-    title: "Email Us",
-    details: ["hello@aquapethaven.in", "support@aquapethaven.in"],
-    color: "text-accent",
-  },
-  {
-    icon: Clock,
-    title: "Working Hours",
-    details: ["Mon - Sat: 10:00 AM - 8:00 PM", "Sunday: 11:00 AM - 6:00 PM"],
-    color: "text-primary",
-  },
-];
+import { businessProfile, type BusinessProfile } from "@/lib/siteContent";
+import { loadFirebaseSiteContent } from "@/lib/firebase/siteContent";
 
 export default function ContactPage() {
+  const [profile, setProfile] = useState<BusinessProfile>(businessProfile);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -57,6 +33,47 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadFirebaseSiteContent().then((content) => {
+      if (mounted) {
+        setProfile(content.businessProfile);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const contactInfo = [
+    {
+      icon: MapPin,
+      title: "Visit Our Store",
+      details: [profile.name, ...profile.addressLines],
+      color: "text-coral",
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      details: [profile.phoneDisplay],
+      color: "text-secondary",
+    },
+    {
+      icon: Mail,
+      title: "Email Us",
+      details: [profile.email],
+      color: "text-accent",
+    },
+    {
+      icon: Clock,
+      title: "Working Hours",
+      details: profile.hours.map((entry) => `${entry.day}: ${entry.hours}`),
+      color: "text-primary",
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +109,7 @@ export default function ContactPage() {
             </h1>
             <p className="text-white/80 text-lg">
               Have questions about our cloned fish or need expert advice? We&apos;re here to help!
-              Visit our store in Mumbai or reach out online.
+              Visit our store in Palayamkottai, Tirunelveli or reach out online.
             </p>
           </motion.div>
         </div>
@@ -260,20 +277,25 @@ export default function ContactPage() {
           >
             <h2 className="text-2xl font-display font-bold mb-2">Find Our Store</h2>
             <p className="text-muted-foreground">
-              Visit us at our flagship store in Mumbai
+              Visit us at our Palayamkottai store in Tirunelveli
             </p>
           </motion.div>
-          <div className="rounded-xl overflow-hidden border h-[400px] bg-muted flex items-center justify-center">
+          <a
+            href={profile.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl overflow-hidden border h-[400px] bg-muted flex items-center justify-center hover:border-secondary transition-colors"
+          >
             <div className="text-center">
               <MapPin className="w-12 h-12 text-secondary mx-auto mb-4" />
               <p className="text-muted-foreground">
-                Interactive map would be displayed here
+                Open Rainbow Aquarium & Pets on Google Maps
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                Andheri West, Mumbai 400058
+                {profile.addressLines.join(", ")}
               </p>
             </div>
-          </div>
+          </a>
         </div>
       </section>
 

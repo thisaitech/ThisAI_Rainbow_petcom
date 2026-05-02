@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { birdsAndFishProducts } from '@/lib/birdsAndFishData'
 import { formatPrice } from '@/lib/utils'
+import { businessProfile } from '@/lib/siteContent'
 
 interface Message {
   id: string
@@ -185,7 +186,7 @@ const getBotResponse = (query: string): { message: string; products?: typeof bir
   // Shipping info
   if (lowerQuery.includes('ship') || lowerQuery.includes('delivery') || lowerQuery.includes('deliver')) {
     return {
-      message: "📦 **Shipping Information:**\n\n🚚 Free shipping on orders over ₹2,000\n⏱️ Delivery within 2-5 business days\n🐟 Live fish shipped with oxygen packs\n🐦 Birds delivered with care crates\n📍 We deliver across Tamil Nadu!\n\nNeed help with a specific order? Contact us at +91 98765 43210"
+      message: `📦 **Shipping Information:**\n\n🚚 Free shipping on orders over ₹2,000\n⏱️ Delivery timing depends on product availability and location\n🐟 Live fish orders are handled with extra care\n🐦 Birds and pet supplies can be confirmed with the store\n📍 Local support from Palayamkottai, Tirunelveli\n\nNeed help with a specific order? Contact us at ${businessProfile.phoneDisplay}`
     }
   }
 
@@ -199,7 +200,7 @@ const getBotResponse = (query: string): { message: string; products?: typeof bir
   // Contact
   if (lowerQuery.includes('contact') || lowerQuery.includes('phone') || lowerQuery.includes('call') || lowerQuery.includes('support')) {
     return {
-      message: "📞 **Contact Us:**\n\n📱 Phone: +91 98765 43210\n📧 Email: hello@rainbowaqua.in\n📍 Location: Chennai, Tamil Nadu\n⏰ Hours: 9 AM - 8 PM (Mon-Sat)\n\nWe're always happy to help!"
+      message: `📞 **Contact Us:**\n\n📱 Phone: ${businessProfile.phoneDisplay}\n📧 Email: ${businessProfile.email}\n📍 Location: ${businessProfile.addressLines.join(', ')}\n⏰ Hours: 9 am-11 pm daily\n\nWe're always happy to help!`
     }
   }
 
@@ -482,7 +483,7 @@ export function ChatBot() {
                                 whileTap={{ scale: 0.98 }}
                               >
                                 <Link 
-                                  href={`/product/${product.slug}`}
+                                  href={`/product?slug=${encodeURIComponent(product.slug)}`}
                                   onClick={() => setIsOpen(false)}
                                   className="flex gap-3 p-2"
                                 >

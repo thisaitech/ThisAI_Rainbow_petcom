@@ -104,39 +104,15 @@ export function useStorefrontProducts() {
 
   const birdsAndFishProducts = useMemo(
     () =>
-      mappedProducts
-        .filter(
-          (product) =>
-            product.category === 'aquarium-fish' ||
-            product.category === 'birds-fish' ||
-            product.category === 'accessories'
-        )
-        .map((product) => ({
-          ...product,
-          category: 'birds-fish',
-          subcategory:
-            product.category === 'birds-fish'
-              ? 'birds'
-              : product.subcategory === 'accessories'
-                ? 'fish-accessories'
-                : 'freshwater-fish',
-        })),
+      mappedProducts.filter(
+        (product) => product.category === 'aquarium-fish' || product.category === 'birds-fish'
+      ),
     [mappedProducts]
   )
 
   const allProducts = useMemo(
-    () => {
-      const productsById = new Map<string, Product>()
-
-      for (const product of [...storefrontProducts, ...birdsAndFishProducts]) {
-        if (!productsById.has(product.id)) {
-          productsById.set(product.id, product)
-        }
-      }
-
-      return Array.from(productsById.values())
-    },
-    [storefrontProducts, birdsAndFishProducts]
+    () => storefrontProducts,
+    [storefrontProducts]
   )
 
   return {

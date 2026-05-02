@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Lock, Mail, PawPrint } from 'lucide-react'
+import { signInToFirebaseAdminSession } from '@/lib/firebase/auth'
+import { hasFirebaseClientConfig } from '@/lib/firebase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import Link from 'next/link'
 
@@ -36,6 +38,21 @@ export default function AdminLoginPage() {
     if (result.success) {
       const user = useAuthStore.getState().currentUser
       if (user?.role === 'admin' || user?.role === 'owner') {
+        if (hasFirebaseClientConfig) {
+          try {
+            await signInToFirebaseAdminSession(email, password)
+          } catch (firebaseError) {
+            setError(
+              firebaseError instanceof Error
+                ? `Firebase admin sign-in failed: ${firebaseError.message}`
+                : 'Firebase admin sign-in failed. Create the same admin user in Firebase Authentication.'
+            )
+            useAuthStore.getState().logout()
+            setIsLoading(false)
+            return
+          }
+        }
+
         router.push('/admin/dashboard')
       } else {
         setError('Access denied. Admin or Owner account required.')

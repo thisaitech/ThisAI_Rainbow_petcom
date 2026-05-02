@@ -6,9 +6,9 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Search, X, TrendingUp } from 'lucide-react'
 import { useUIStore } from '@/store/useUIStore'
-import { searchProducts, products } from '@/lib/mockData'
+import { useStorefrontProducts } from '@/lib/useStorefrontProducts'
 import { formatPrice } from '@/lib/utils'
-import { Product } from '@/types'
+import type { Product } from '@/lib/store'
 
 const trendingSearches = ['Dog Food', 'Cat Toys', 'Pet Beds', 'Treats', 'Grooming']
 
@@ -17,6 +17,7 @@ export default function SearchDropdown() {
   const [results, setResults] = useState<Product[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const { closeSearch } = useUIStore()
+  const { storefrontProducts } = useStorefrontProducts()
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -24,12 +25,21 @@ export default function SearchDropdown() {
 
   useEffect(() => {
     if (query.length > 1) {
-      const searchResults = searchProducts(query).slice(0, 6)
+      const normalizedQuery = query.toLowerCase()
+      const searchResults = storefrontProducts
+        .filter((product) =>
+          [product.name, product.category, product.subcategory, product.description]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()
+            .includes(normalizedQuery)
+        )
+        .slice(0, 6)
       setResults(searchResults)
     } else {
       setResults([])
     }
-  }, [query])
+  }, [query, storefrontProducts])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -85,7 +95,7 @@ export default function SearchDropdown() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link
-                    href={`/product/${product.slug}`}
+                    href={`/product?slug=${encodeURIComponent(product.slug)}`}
                     onClick={closeSearch}
                     className="block group"
                   >
@@ -144,7 +154,7 @@ export default function SearchDropdown() {
           <div className="mt-8">
             <h3 className="font-heading font-semibold text-gray-500 mb-4">Popular Products</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {products.filter(p => p.isBestSeller).slice(0, 6).map((product, index) => (
+              {storefrontProducts.filter(p => p.isFeatured).slice(0, 6).map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -152,7 +162,7 @@ export default function SearchDropdown() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link
-                    href={`/product/${product.slug}`}
+                    href={`/product?slug=${encodeURIComponent(product.slug)}`}
                     onClick={closeSearch}
                     className="block group"
                   >
