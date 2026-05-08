@@ -20,6 +20,7 @@ export interface Product {
   isFeatured?: boolean;
   rating: number;
   reviews: number;
+  brand?: string;
   tags?: string[];
 }
 

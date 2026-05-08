@@ -133,6 +133,7 @@ function ProductCard({ product, className }: { product: Product; className?: str
 
           {/* Wishlist - larger touch target on mobile */}
           <button
+            type="button"
             onClick={handleWishlist}
             className="absolute top-2 sm:top-3 right-2 sm:right-3 p-2.5 sm:p-2 bg-white/90 rounded-full shadow-md z-10 hover:scale-110 active:scale-95 transition-transform"
           >
@@ -158,6 +159,7 @@ function ProductCard({ product, className }: { product: Product; className?: str
 
           {/* Mobile Add to Cart Button - visible only on mobile */}
           <button
+            type="button"
             onClick={handleAddToCart}
             className="absolute bottom-2 right-2 p-2 bg-primary text-white rounded-full shadow-lg z-10 sm:hidden active:scale-95 transition-transform"
           >
@@ -190,11 +192,6 @@ function ProductCard({ product, className }: { product: Product; className?: str
             )}
           </div>
 
-          {/* Stock */}
-          <p className={cn("text-[10px] sm:text-xs mt-1.5 sm:mt-2 flex items-center gap-1", product.inStock ? "text-green-600" : "text-red-500")}>
-            <span className={cn("w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full", product.inStock ? "bg-green-500" : "bg-red-500")} />
-            {product.inStock ? "In Stock" : "Out of Stock"}
-          </p>
         </div>
       </div>
     </Link>
@@ -365,6 +362,7 @@ function MinimalCarousel({ products, accentColor, autoplayDelay }: {
       <div className="flex justify-center gap-2 mt-6">
         {products.map((_, index) => (
           <button
+            type="button"
             key={index}
             onClick={() => setCurrentIndex(index)}
             className={cn(

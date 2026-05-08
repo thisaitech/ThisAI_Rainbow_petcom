@@ -19,6 +19,8 @@ import {
   PawPrint,
   ArrowRight
 } from 'lucide-react'
+import { Navigation } from '@/components/navigation'
+import { Footer } from '@/components/footer'
 import PetCategoriesSection from '@/components/pets/PetCategoriesSection'
 import { businessProfile } from '@/lib/siteContent'
 
@@ -107,7 +109,7 @@ const values = [
 ]
 
 export default function AboutPage() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end']
@@ -117,7 +119,8 @@ export default function AboutPage() {
   const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '-30%'])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-light overflow-hidden">
+    <main ref={containerRef} className="min-h-screen bg-slate-50 overflow-hidden text-slate-800">
+      <Navigation />
       {/* Hero Section with Parallax */}
       <section className="relative h-[70vh] md:h-[80vh] overflow-hidden">
         <motion.div 
@@ -166,21 +169,23 @@ export default function AboutPage() {
                 From a small pet store in Tirunelveli to India&apos;s most loved pet e-commerce brand. 
                 We&apos;re on a mission to make pet parenting joyful and affordable.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/shop">
                   <motion.button
+                    type="button"
                     whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.3)' }}
                     whileTap={{ scale: 0.95 }}
-                    className="btn-primary text-lg px-8 py-4"
+                    className="btn-primary w-full sm:w-auto text-base sm:text-lg px-7 py-3.5"
                   >
                     <span>Shop Now</span>
                   </motion.button>
                 </Link>
                 <a href="#contact">
                   <motion.button
+                    type="button"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="btn-secondary text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-dark"
+                    className="btn-secondary w-full sm:w-auto text-base sm:text-lg px-7 py-3.5 border-white text-white hover:bg-white hover:text-dark"
                   >
                     Contact Us
                   </motion.button>
@@ -192,7 +197,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white relative">
+      <section className="py-16 bg-white relative text-slate-800">
         <div className="container-custom">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -223,7 +228,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Story Timeline */}
-      <section className="py-20 bg-light">
+      <section className="py-20 bg-slate-50 text-slate-800">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -253,7 +258,7 @@ export default function AboutPage() {
                 <div className="flex-1">
                   <motion.div
                     whileHover={{ scale: 1.02, boxShadow: '0 30px 60px rgba(0,0,0,0.15)' }}
-                    className={`bg-white p-8 rounded-3xl shadow-lg ${
+                    className={`bg-white p-6 sm:p-8 rounded-2xl shadow-lg ${
                       index % 2 === 0 ? 'md:text-right' : 'md:text-left'
                     }`}
                   >
@@ -263,7 +268,7 @@ export default function AboutPage() {
                     <h3 className="font-heading font-bold text-2xl text-dark mb-3">
                       {item.title}
                     </h3>
-                    <p className="text-gray-600">{item.description}</p>
+                    <p className="text-slate-600">{item.description}</p>
                   </motion.div>
                 </div>
 
@@ -276,13 +281,14 @@ export default function AboutPage() {
                 <div className="flex-1">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
-                    className="relative aspect-video rounded-2xl overflow-hidden shadow-xl"
+                    className="relative aspect-video rounded-2xl overflow-hidden shadow-xl bg-slate-100 p-1"
                   >
                     <Image
                       src={item.image}
                       alt={item.title}
                       fill
-                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover p-1"
                     />
                   </motion.div>
                 </div>
@@ -339,8 +345,8 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-white">
-        <div className="container-custom">
+      <section className="py-20 bg-white text-slate-800">
+        <div className="container-custom px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -351,7 +357,7 @@ export default function AboutPage() {
             <h2 className="section-title mt-2">Our Amazing Team</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {team.map((member, index) => (
               <motion.div
                 key={member.name}
@@ -360,22 +366,22 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
-                className="group"
+                className="group bg-white rounded-2xl p-3 shadow-sm border border-slate-100"
               >
-                <div className="relative overflow-hidden rounded-2xl mb-4">
+                <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-100">
                   <Image
                     src={member.image}
                     alt={member.name}
                     width={300}
                     height={300}
-                    className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full aspect-square object-cover p-1 group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                     <p className="text-white text-sm">{member.bio}</p>
                   </div>
                 </div>
-                <h3 className="font-heading font-bold text-lg text-dark">{member.name}</h3>
-                <p className="text-primary-500 text-sm">{member.role}</p>
+                <h3 className="font-heading font-bold text-lg text-slate-900 px-1">{member.name}</h3>
+                <p className="text-primary-600 text-sm px-1 pb-1">{member.role}</p>
               </motion.div>
             ))}
           </div>
@@ -383,7 +389,7 @@ export default function AboutPage() {
       </section>
 
       {/* Contact & Location Section */}
-      <section id="contact" className="py-20 bg-light">
+      <section id="contact" className="py-20 bg-slate-50 text-slate-800">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -398,27 +404,27 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="bg-white rounded-3xl p-8 shadow-xl">
+              <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-xl">
                 <h3 className="font-heading font-bold text-2xl mb-6">{businessProfile.name}</h3>
                 
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <motion.div 
                     whileHover={{ x: 10 }}
-                    className="flex items-start gap-4"
+                    className="flex items-start gap-3 sm:gap-4"
                   >
                     <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-6 h-6 text-primary-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-dark">Store Address</h4>
-                      <p className="text-gray-600">
+                      <h4 className="font-semibold text-slate-900">Store Address</h4>
+                      <p className="text-slate-600 leading-relaxed">
                         {businessProfile.addressLines[0]}<br />
                         {businessProfile.addressLines[1]}
                       </p>
@@ -427,14 +433,14 @@ export default function AboutPage() {
 
                   <motion.div 
                     whileHover={{ x: 10 }}
-                    className="flex items-start gap-4"
+                    className="flex items-start gap-3 sm:gap-4"
                   >
                     <div className="w-12 h-12 bg-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Phone className="w-6 h-6 text-secondary-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-dark">Phone</h4>
-                      <p className="text-gray-600">
+                      <h4 className="font-semibold text-slate-900">Phone</h4>
+                      <p className="text-slate-600 leading-relaxed">
                         Call / WhatsApp: {businessProfile.phoneDisplay}
                       </p>
                     </div>
@@ -442,14 +448,14 @@ export default function AboutPage() {
 
                   <motion.div 
                     whileHover={{ x: 10 }}
-                    className="flex items-start gap-4"
+                    className="flex items-start gap-3 sm:gap-4"
                   >
                     <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Mail className="w-6 h-6 text-accent-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-dark">Email</h4>
-                      <p className="text-gray-600">
+                      <h4 className="font-semibold text-slate-900">Email</h4>
+                      <p className="text-slate-600 leading-relaxed break-all">
                         {businessProfile.email}
                       </p>
                     </div>
@@ -457,14 +463,14 @@ export default function AboutPage() {
 
                   <motion.div 
                     whileHover={{ x: 10 }}
-                    className="flex items-start gap-4"
+                    className="flex items-start gap-3 sm:gap-4"
                   >
                     <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Clock className="w-6 h-6 text-red-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-dark">Store Hours</h4>
-                      <p className="text-gray-600">
+                      <h4 className="font-semibold text-slate-900">Store Hours</h4>
+                      <p className="text-slate-600 leading-relaxed">
                         Open daily: 9 am-11 pm<br />
                         <span className="text-secondary-500 font-medium">Please call to confirm live pet availability.</span>
                       </p>
@@ -509,7 +515,9 @@ export default function AboutPage() {
       </section>
 
       {/* Pet Breeds Showcase */}
-      <PetCategoriesSection showTitle={true} maxPetsPerCategory={6} />
+      <section id="pet-categories" className="bg-white">
+        <PetCategoriesSection showTitle={true} maxPetsPerCategory={6} />
+      </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-dark text-white relative overflow-hidden">
@@ -535,6 +543,7 @@ export default function AboutPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/shop">
                 <motion.button
+                  type="button"
                   whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)' }}
                   whileTap={{ scale: 0.95 }}
                   className="btn-primary text-lg px-8 py-4"
@@ -544,6 +553,7 @@ export default function AboutPage() {
               </Link>
               <a href={`tel:${businessProfile.phone}`}>
                 <motion.button
+                  type="button"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full font-semibold hover:bg-white/20 transition-all"
@@ -556,7 +566,8 @@ export default function AboutPage() {
           </motion.div>
         </div>
       </section>
-    </div>
+      <Footer />
+    </main>
   )
 }
 

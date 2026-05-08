@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -33,6 +33,7 @@ export default function BirdsAndFishPage() {
   const [selectedFreshwaterSpecies, setSelectedFreshwaterSpecies] = useState<string[]>([])
   const [selectedMarineSpecies, setSelectedMarineSpecies] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState([0, 100000])
+  const [draftPriceRange, setDraftPriceRange] = useState([0, 100000])
   const [inStockOnly, setInStockOnly] = useState(false)
   const [newArrivalsOnly, setNewArrivalsOnly] = useState(false)
   
@@ -51,12 +52,18 @@ export default function BirdsAndFishPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Track scroll position for scroll-to-top button
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
+  useEffect(() => {
+    const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400)
-    })
-  }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
@@ -79,10 +86,11 @@ export default function BirdsAndFishPage() {
     // Filter by type
     if (selectedTypes.length > 0) {
       products = products.filter(p => {
-        if (selectedTypes.includes('birds') && p.subcategory === 'birds') return true
-        if (selectedTypes.includes('freshwater') && p.subcategory === 'freshwater-fish') return true
-        if (selectedTypes.includes('marine') && p.subcategory === 'marine-fish') return true
-        if (selectedTypes.includes('accessories') && p.subcategory === 'fish-accessories') return true
+        const haystack = `${p.category} ${p.subcategory ?? ''} ${p.name} ${p.tags?.join(' ') ?? ''}`.toLowerCase()
+        if (selectedTypes.includes('birds') && (p.category === 'birds-fish' || haystack.includes('bird'))) return true
+        if (selectedTypes.includes('freshwater') && (haystack.includes('freshwater') || haystack.includes('fish'))) return true
+        if (selectedTypes.includes('marine') && haystack.includes('marine')) return true
+        if (selectedTypes.includes('accessories') && (p.category === 'accessories' || haystack.includes('accessor'))) return true
         return false
       })
     }
@@ -127,6 +135,7 @@ export default function BirdsAndFishPage() {
     setSelectedFreshwaterSpecies([])
     setSelectedMarineSpecies([])
     setPriceRange([0, 100000])
+    setDraftPriceRange([0, 100000])
     setInStockOnly(false)
     setNewArrivalsOnly(false)
   }
@@ -136,6 +145,7 @@ export default function BirdsAndFishPage() {
   }) => (
     <div className="border-b border-gray-100 py-3 sm:py-4">
       <button 
+        type="button"
         onClick={onToggle}
         className="flex items-center justify-between w-full text-left font-semibold text-gray-800 min-h-[44px] touch-manipulation"
       >
@@ -191,16 +201,17 @@ export default function BirdsAndFishPage() {
       <FilterSection title="Price Range" expanded={expandedSections.price} onToggle={() => toggleSection('price')}>
         <div className="px-1 py-2">
           <Slider
-            value={priceRange}
-            onValueChange={setPriceRange}
+            value={draftPriceRange}
+            onValueChange={setDraftPriceRange}
+            onValueCommit={setPriceRange}
             min={0}
             max={100000}
             step={500}
             className="my-4"
           />
           <div className="flex justify-between text-sm text-gray-600">
-            <span className="font-medium">{formatPrice(priceRange[0])}</span>
-            <span className="font-medium">{formatPrice(priceRange[1])}</span>
+            <span className="font-medium">{formatPrice(draftPriceRange[0])}</span>
+            <span className="font-medium">{formatPrice(draftPriceRange[1])}</span>
           </div>
         </div>
       </FilterSection>

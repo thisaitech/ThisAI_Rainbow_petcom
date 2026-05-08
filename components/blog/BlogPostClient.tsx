@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Calendar, Clock, User, ArrowLeft, Share2, Facebook, Twitter } from "lucide-react";
 import { Navigation } from "@/components/navigation";
@@ -16,6 +17,7 @@ interface BlogPostClientProps {
 }
 
 export default function BlogPostClient({ slug }: BlogPostClientProps) {
+  const router = useRouter();
   const post = blogPosts.find((p) => p.slug === slug);
 
   if (!post) {
@@ -36,6 +38,15 @@ export default function BlogPostClient({ slug }: BlogPostClientProps) {
   const relatedPosts = blogPosts
     .filter((p) => p.category === post.category && p.id !== post.id)
     .slice(0, 3);
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/blog");
+  };
 
   return (
     <main className="min-h-screen">
@@ -92,11 +103,9 @@ export default function BlogPostClient({ slug }: BlogPostClientProps) {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Main Content */}
               <div className="lg:flex-1 max-w-3xl">
-                <Button variant="ghost" asChild className="mb-6">
-                  <Link href="/blog">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Blog
-                  </Link>
+                <Button variant="ghost" onClick={goBack} className="mb-6">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
                 </Button>
 
                 <div className="prose prose-lg max-w-none">

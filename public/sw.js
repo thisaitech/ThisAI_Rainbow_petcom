@@ -1,4 +1,4 @@
-const CACHE_NAME = "rinbow-aqua-v1.4.0";
+const CACHE_NAME = "rinbow-aqua-v1.5.0";
 const OFFLINE_URL = "/offline.html";
 const ASSET_MANIFEST_URL = "/sw-assets.json";
 const NETWORK_TIMEOUT_MS = 8000;
@@ -126,7 +126,7 @@ self.addEventListener("fetch", (event) => {
                 cachedResponse || new Response(null, { status: 503, statusText: "Offline" })
             );
 
-          return cachedResponse || networkResponse;
+          return networkResponse;
         })
       )
     );

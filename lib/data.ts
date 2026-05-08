@@ -520,6 +520,28 @@ export const blogPosts = [
     category: "Guides",
     readTime: "6 min read",
   },
+  {
+    id: 5,
+    title: "Fish Care Tips for a Healthy Aquarium",
+    slug: "fish-care-tips-healthy-aquarium",
+    excerpt: "Simple weekly routines for cleaner water, healthier fish, and a calmer aquarium setup.",
+    image: "https://images.unsplash.com/photo-1520302630591-fd1c66edc19d?w=800",
+    author: "Rainbow Aqua Team",
+    date: "2025-01-08",
+    category: "Fish Care",
+    readTime: "7 min read",
+  },
+  {
+    id: 6,
+    title: "Live Fish Care: Feeding, Water Changes, and Stress Signs",
+    slug: "live-fish-care-feeding-water-stress",
+    excerpt: "Learn how much to feed, when to change water, and how to spot early signs of fish stress.",
+    image: "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800",
+    author: "Rainbow Aqua Team",
+    date: "2025-01-15",
+    category: "Fish Care",
+    readTime: "9 min read",
+  },
 ];
 
 export const faqs = [

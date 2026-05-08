@@ -35,13 +35,20 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
   const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
   const [sortBy, setSortBy] = useState("featured");
   const [priceRange, setPriceRange] = useState([0, 150000]);
+  const [draftPriceRange, setDraftPriceRange] = useState([0, 150000]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  const subcategoryProducts = useMemo(
+    () =>
+      sourceProducts.filter(
+        (product) => product.category === categorySlug && product.subcategory === subcategorySlug
+      ),
+    [categorySlug, sourceProducts, subcategorySlug]
+  );
+
   const filteredProducts = useMemo(() => {
-    let result = sourceProducts.filter(
-      (product) => product.category === categorySlug && product.subcategory === subcategorySlug
-    );
+    let result = [...subcategoryProducts];
 
     result = result.filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
 
@@ -67,10 +74,11 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
     }
 
     return result;
-  }, [categorySlug, inStockOnly, priceRange, sortBy, sourceProducts, subcategorySlug]);
+  }, [inStockOnly, priceRange, sortBy, subcategoryProducts]);
 
   const clearFilters = () => {
     setPriceRange([0, 150000]);
+    setDraftPriceRange([0, 150000]);
     setInStockOnly(false);
   };
 
@@ -81,10 +89,17 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
           <AccordionTrigger>Price Range</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
-              <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={150000} step={1000} />
+              <Slider
+                value={draftPriceRange}
+                onValueChange={setDraftPriceRange}
+                onValueCommit={setPriceRange}
+                min={0}
+                max={150000}
+                step={1000}
+              />
               <div className="flex items-center justify-between text-sm">
-                <span>{formatPrice(priceRange[0])}</span>
-                <span>{formatPrice(priceRange[1])}</span>
+                <span>{formatPrice(draftPriceRange[0])}</span>
+                <span>{formatPrice(draftPriceRange[1])}</span>
               </div>
             </div>
           </AccordionContent>
@@ -111,7 +126,7 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
     5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
   };
 
-  if (filteredProducts.length === 0) {
+  if (subcategoryProducts.length === 0) {
     return (
       <main className="min-h-screen">
         <Navigation />
@@ -119,6 +134,9 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
           <h1 className="text-2xl font-bold">Subcategory not found</h1>
           <Button asChild className="mt-4">
             <Link href={`/shop/${categorySlug}`}>Back to Category</Link>
+          </Button>
+          <Button asChild variant="outline" className="mt-4 ml-3">
+            <Link href="/shop">All Products</Link>
           </Button>
         </div>
         <Footer />
@@ -132,7 +150,7 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
 
       <section
         className="relative py-12 md:py-20 bg-cover bg-center"
-        style={{ backgroundImage: `url(${filteredProducts[0].images[0]})` }}
+        style={{ backgroundImage: `url(${subcategoryProducts[0].images[0]})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 to-primary/70" />
         <div className="container mx-auto px-4 relative">
@@ -192,10 +210,10 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
 
                 <div className="flex items-center gap-2">
                   <div className="hidden md:flex items-center border rounded-lg">
-                    <button onClick={() => setGridCols(2)} className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}>
+                    <button type="button" onClick={() => setGridCols(2)} className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}>
                       <Grid className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setGridCols(4)} className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}>
+                    <button type="button" onClick={() => setGridCols(4)} className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}>
                       <Grid3X3 className="w-4 h-4" />
                     </button>
                   </div>
@@ -222,6 +240,15 @@ export default function SubcategoryPageClient({ categorySlug, subcategorySlug }:
                   ))}
                 </AnimatePresence>
               </div>
+
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No products found.</p>
+                  <Button variant="outline" onClick={clearFilters} className="mt-4">
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

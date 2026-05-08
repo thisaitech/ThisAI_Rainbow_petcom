@@ -53,6 +53,7 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
   const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
   const [sortBy, setSortBy] = useState("featured");
   const [priceRange, setPriceRange] = useState([0, 150000]);
+  const [draftPriceRange, setDraftPriceRange] = useState([0, 150000]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -124,6 +125,7 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
   const clearFilters = () => {
     setSelectedSubcategories([]);
     setPriceRange([0, 150000]);
+    setDraftPriceRange([0, 150000]);
     setInStockOnly(false);
   };
 
@@ -158,10 +160,17 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
           <AccordionTrigger>Price Range</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
-              <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={150000} step={1000} />
+              <Slider
+                value={draftPriceRange}
+                onValueChange={setDraftPriceRange}
+                onValueCommit={setPriceRange}
+                min={0}
+                max={150000}
+                step={1000}
+              />
               <div className="flex items-center justify-between text-sm">
-                <span>{formatPrice(priceRange[0])}</span>
-                <span>{formatPrice(priceRange[1])}</span>
+                <span>{formatPrice(draftPriceRange[0])}</span>
+                <span>{formatPrice(draftPriceRange[1])}</span>
               </div>
             </div>
           </AccordionContent>
@@ -273,10 +282,10 @@ export default function CategoryPageClient({ categorySlug }: CategoryPageClientP
 
                 <div className="flex items-center gap-2">
                   <div className="hidden md:flex items-center border rounded-lg">
-                    <button onClick={() => setGridCols(2)} className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}>
+                    <button type="button" onClick={() => setGridCols(2)} className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}>
                       <Grid className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setGridCols(4)} className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}>
+                    <button type="button" onClick={() => setGridCols(4)} className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}>
                       <Grid3X3 className="w-4 h-4" />
                     </button>
                   </div>

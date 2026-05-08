@@ -34,9 +34,9 @@ const footerLinks = {
   shop: [
     { name: "Aquarium Fish", href: "/shop/aquarium-fish" },
     { name: "Cloned Fish", href: "/shop/aquarium-fish/cloned-fish" },
-    { name: "Dogs", href: "/shop/dogs" },
-    { name: "Cats", href: "/shop/cats" },
-    { name: "Birds", href: "/shop/birds" },
+    { name: "Dogs", href: "/about#pet-categories" },
+    { name: "Cats", href: "/about#pet-categories" },
+    { name: "Birds", href: "/birds-fish" },
     { name: "Accessories", href: "/shop/accessories" },
   ],
   company: [
@@ -63,6 +63,28 @@ const footerLinks = {
 
 export function Footer() {
   const [profile, setProfile] = useState<BusinessProfile>(businessProfile);
+  const socialLinks = [
+    {
+      name: "Facebook",
+      icon: Facebook,
+      href: `https://www.google.com/search?q=${encodeURIComponent(`${profile.name} Facebook`)}`,
+    },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      href: `https://www.google.com/search?q=${encodeURIComponent(`${profile.name} Instagram`)}`,
+    },
+    {
+      name: "Twitter",
+      icon: Twitter,
+      href: `https://www.google.com/search?q=${encodeURIComponent(`${profile.name} Twitter`)}`,
+    },
+    {
+      name: "YouTube",
+      icon: Youtube,
+      href: `https://www.google.com/search?q=${encodeURIComponent(`${profile.name} YouTube`)}`,
+    },
+  ];
 
   useEffect(() => {
     let mounted = true;
@@ -124,18 +146,18 @@ export function Footer() {
               {profile.name} is your local Tirunelveli destination for aquarium fish, birds, pet food, and pet care supplies.
             </p>
             <div className="flex gap-2 sm:gap-3">
-              <a href="#" className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all">
-                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a href="#" className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all">
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a href="#" className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all">
-                <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a href="#" className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all">
-                <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="p-2 sm:p-2.5 bg-white/10 rounded-full hover:bg-secondary active:scale-95 transition-all"
+                >
+                  <social.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                </a>
+              ))}
             </div>
           </div>
 

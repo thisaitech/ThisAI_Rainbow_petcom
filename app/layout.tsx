@@ -67,6 +67,19 @@ const liveServerGuardScript = `
     clearSiteData().finally(reloadWithCacheBust);
   };
 
+  window.addEventListener("error", (event) => {
+    const message = String(event.message || "");
+    const filename = String(event.filename || "");
+    const isChunkParseError =
+      message.includes("Invalid or unexpected token") &&
+      (filename.includes("/_next/static/") || filename.includes("/_next/"));
+
+    if (isChunkParseError) {
+      event.preventDefault();
+      clearSiteData().finally(reloadWithCacheBust);
+    }
+  });
+
   const attemptAssetRecovery = () => {
     if (sessionStorage.getItem(assetRecoveryKey) === "1") {
       appendOverlay(

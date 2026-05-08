@@ -114,6 +114,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {/* Wishlist Button */}
             <motion.button
+              type="button"
               onClick={handleWishlist}
               className="absolute top-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors z-10"
               whileHover={{ scale: 1.1 }}
@@ -192,15 +193,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
-            {/* Stock Status */}
-            <motion.p 
-              className={`text-xs mt-2 flex items-center gap-1 ${product.inStock ? "text-accent" : "text-coral"}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <span className={`w-2 h-2 rounded-full ${product.inStock ? "bg-accent" : "bg-coral"} animate-pulse`} />
-              {product.inStock ? "In Stock" : "Out of Stock"}
-            </motion.p>
           </div>
         </motion.div>
       </Link>

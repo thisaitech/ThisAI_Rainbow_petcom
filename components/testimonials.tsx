@@ -4,19 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
-import type { Swiper as SwiperType } from "swiper";
+import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import { 
   Star, 
   Quote, 
-  ChevronLeft, 
   ChevronRight, 
   X, 
   Verified, 
   Heart,
   MessageCircle,
-  Fish,
-  Bird
+  Fish
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -82,6 +79,7 @@ function TestimonialModal({ testimonial, isOpen, onClose }: TestimonialModalProp
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
               />
               <button
+                type="button"
                 onClick={onClose}
                 className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full 
                           flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -212,14 +210,12 @@ function TestimonialModal({ testimonial, isOpen, onClose }: TestimonialModalProp
 }
 
 export function Testimonials() {
-  const swiperRef = useRef<SwiperType | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [reviews, setReviews] = useState<CustomerReview[]>(customerReviews);
   const [rating, setRating] = useState(businessProfile.rating);
   const [reviewCount, setReviewCount] = useState(businessProfile.reviewCount);
   const [selectedTestimonial, setSelectedTestimonial] = useState<CustomerReview | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -362,33 +358,6 @@ export function Testimonials() {
           </motion.div>
         </motion.div>
 
-        {/* Navigation Buttons */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.6 }}
-          className="flex justify-center gap-4 mb-8"
-        >
-          <motion.button
-            onClick={() => swiperRef.current?.slidePrev()}
-            className="w-12 h-12 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center
-                      text-slate-600 hover:text-sky-500 hover:border-sky-300 hover:shadow-xl transition-all"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </motion.button>
-          <motion.button
-            onClick={() => swiperRef.current?.slideNext()}
-            className="w-12 h-12 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center
-                      text-slate-600 hover:text-sky-500 hover:border-sky-300 hover:shadow-xl transition-all"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ChevronRight className="w-6 h-6" />
-          </motion.button>
-        </motion.div>
-
         {/* Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -396,9 +365,7 @@ export function Testimonials() {
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <Swiper
-            onSwiper={(swiper) => (swiperRef.current = swiper)}
-            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-            modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+            modules={[Pagination, Autoplay, EffectCoverflow]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
@@ -516,12 +483,15 @@ export function Testimonials() {
           className="text-center mt-12"
         >
           <Button 
+            asChild
             size="lg" 
             className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 
                       text-white px-8 shadow-lg shadow-sky-500/25"
           >
-            Read All Reviews
-            <ChevronRight className="w-5 h-5 ml-2" />
+            <a href={businessProfile.mapUrl} target="_blank" rel="noopener noreferrer">
+              Read All Reviews
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </a>
           </Button>
         </motion.div>
       </div>

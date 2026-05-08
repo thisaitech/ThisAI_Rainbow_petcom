@@ -25,17 +25,36 @@ export default function ShopPage() {
   const [gridCols, setGridCols] = useState<2 | 3 | 4 | 5>(4);
   const [sortBy, setSortBy] = useState("featured");
   const [priceRange, setPriceRange] = useState([0, 150000]);
+  const [draftPriceRange, setDraftPriceRange] = useState([0, 150000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [newArrivalsOnly, setNewArrivalsOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [rawSearchQuery, setRawSearchQuery] = useState("");
+  const [urlFilter, setUrlFilter] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setRawSearchQuery(params.get("search")?.trim() ?? "");
+    setUrlFilter(params.get("filter")?.trim().toLowerCase() ?? "");
+    const brand = params.get("brand")?.trim().toLowerCase();
+    if (brand) {
+      setSelectedBrands([brand]);
+    }
   }, []);
 
   const searchQuery = rawSearchQuery.toLowerCase();
+
+  const availableBrands = useMemo(() => {
+    const brands = Array.from(
+      new Set(storefrontProducts.map((product) => product.brand).filter((brand): brand is string => Boolean(brand)))
+    );
+
+    return brands
+      .map((brand) => ({ name: brand, slug: brand.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [storefrontProducts]);
 
   const filteredProducts = useMemo(() => {
     let result = [...storefrontProducts];
@@ -61,6 +80,13 @@ export default function ShopPage() {
       result = result.filter((p) => selectedCategories.includes(p.category));
     }
 
+    if (selectedBrands.length > 0) {
+      result = result.filter((p) => {
+        const productBrand = p.brand?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        return productBrand ? selectedBrands.includes(productBrand) : false;
+      });
+    }
+
     // Filter by price
     result = result.filter(
       (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
@@ -69,6 +95,18 @@ export default function ShopPage() {
     // Filter by stock
     if (inStockOnly) {
       result = result.filter((p) => p.inStock);
+    }
+
+    if (newArrivalsOnly || urlFilter === "new") {
+      result = result.filter((p) => p.isNew);
+    }
+
+    if (urlFilter === "featured" || urlFilter === "bestseller") {
+      result = result.filter((p) => p.isFeatured);
+    }
+
+    if (urlFilter === "deals" || urlFilter === "sale") {
+      result = result.filter((p) => p.originalPrice && p.originalPrice > p.price);
     }
 
     // Sort
@@ -93,7 +131,7 @@ export default function ShopPage() {
     }
 
     return result;
-  }, [storefrontProducts, searchQuery, selectedCategories, priceRange, inStockOnly, sortBy]);
+  }, [storefrontProducts, searchQuery, selectedCategories, selectedBrands, priceRange, inStockOnly, newArrivalsOnly, urlFilter, sortBy]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -105,8 +143,19 @@ export default function ShopPage() {
 
   const clearFilters = () => {
     setSelectedCategories([]);
+    setSelectedBrands([]);
     setPriceRange([0, 150000]);
+    setDraftPriceRange([0, 150000]);
     setInStockOnly(false);
+    setNewArrivalsOnly(false);
+  };
+
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand)
+        ? prev.filter((value) => value !== brand)
+        : [...prev, brand]
+    );
   };
 
   const FilterContent = () => (
@@ -134,6 +183,30 @@ export default function ShopPage() {
         </AccordionItem>
       </Accordion>
 
+      {availableBrands.length > 0 && (
+        <Accordion type="single" collapsible defaultValue="brands">
+          <AccordionItem value="brands">
+            <AccordionTrigger>Brands</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-2">
+                {availableBrands.map((brand) => (
+                  <div key={brand.slug} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`brand-${brand.slug}`}
+                      checked={selectedBrands.includes(brand.slug)}
+                      onCheckedChange={() => toggleBrand(brand.slug)}
+                    />
+                    <Label htmlFor={`brand-${brand.slug}`} className="text-sm cursor-pointer">
+                      {brand.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+
       {/* Price Range */}
       <Accordion type="single" collapsible defaultValue="price">
         <AccordionItem value="price">
@@ -141,15 +214,16 @@ export default function ShopPage() {
           <AccordionContent>
             <div className="space-y-4">
               <Slider
-                value={priceRange}
-                onValueChange={setPriceRange}
+                value={draftPriceRange}
+                onValueChange={setDraftPriceRange}
+                onValueCommit={setPriceRange}
                 min={0}
                 max={150000}
                 step={1000}
               />
               <div className="flex items-center justify-between text-sm">
-                <span>{formatPrice(priceRange[0])}</span>
-                <span>{formatPrice(priceRange[1])}</span>
+                <span>{formatPrice(draftPriceRange[0])}</span>
+                <span>{formatPrice(draftPriceRange[1])}</span>
               </div>
             </div>
           </AccordionContent>
@@ -165,6 +239,17 @@ export default function ShopPage() {
         />
         <Label htmlFor="inStock" className="text-sm cursor-pointer">
           In Stock Only
+        </Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="newArrivals"
+          checked={newArrivalsOnly || urlFilter === "new"}
+          onCheckedChange={(checked) => setNewArrivalsOnly(checked as boolean)}
+        />
+        <Label htmlFor="newArrivals" className="text-sm cursor-pointer">
+          New Arrivals
         </Label>
       </div>
 
@@ -293,12 +378,14 @@ export default function ShopPage() {
                   {/* Grid Toggle */}
                   <div className="hidden md:flex items-center border rounded-lg">
                     <button
+                      type="button"
                       onClick={() => setGridCols(2)}
                       className={`p-2 ${gridCols === 2 ? "bg-muted" : ""}`}
                     >
                       <Grid className="w-4 h-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => setGridCols(4)}
                       className={`p-2 ${gridCols === 4 ? "bg-muted" : ""}`}
                     >
@@ -324,7 +411,7 @@ export default function ShopPage() {
               </div>
 
               {/* Active Filters */}
-              {(selectedCategories.length > 0 || searchQuery) && (
+              {(selectedCategories.length > 0 || selectedBrands.length > 0 || searchQuery || urlFilter) && (
                 <div className="flex flex-wrap gap-2 mb-6">
                   {searchQuery && (
                     <Badge variant="outline" className="normal-case">
@@ -342,6 +429,22 @@ export default function ShopPage() {
                       <X className="w-3 h-3 ml-1" />
                     </Badge>
                   ))}
+                  {selectedBrands.map((brand) => (
+                    <Badge
+                      key={brand}
+                      variant="outline"
+                      className="cursor-pointer hover:bg-muted"
+                      onClick={() => toggleBrand(brand)}
+                    >
+                      {availableBrands.find((item) => item.slug === brand)?.name ?? brand}
+                      <X className="w-3 h-3 ml-1" />
+                    </Badge>
+                  ))}
+                  {urlFilter && (
+                    <Badge variant="outline" className="normal-case">
+                      Filter: {urlFilter}
+                    </Badge>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"

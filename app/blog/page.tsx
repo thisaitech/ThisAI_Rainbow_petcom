@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { blogPosts } from "@/lib/data";
 import { useState } from "react";
 
-const categories = ["All", "Technology", "Care Guides", "Tutorials", "Guides"];
+const categories = ["All", "Fish Care", "Technology", "Care Guides", "Tutorials", "Guides"];
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");

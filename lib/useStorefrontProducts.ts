@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Product } from '@/lib/store'
+import { products as staticProducts } from '@/lib/data'
 import { loadProductCatalog } from '@/lib/productCatalogClient'
 import { AdminProduct, useAdminProductStore } from '@/store/useAdminProductStore'
 
@@ -14,6 +15,36 @@ const slugify = (value: string) =>
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
+
+const inferBrand = (product: AdminProduct) => {
+  const knownBrands = [
+    'ADA',
+    'Chihiros',
+    'SUNSUN',
+    'Boyu',
+    'Fluval',
+    'Bluepet',
+    'Sobo',
+    'RS Electrical',
+    'Dophin',
+  ]
+
+  const haystack = `${product.name} ${product.subcategory} ${product.sku}`.toLowerCase()
+  const matchedBrand = knownBrands.find((brand) =>
+    haystack.includes(slugify(brand).replace(/-/g, ' ')) ||
+    haystack.includes(brand.toLowerCase())
+  )
+
+  if (matchedBrand) {
+    return matchedBrand
+  }
+
+  if (product.category === 'Accessories') {
+    return 'Rainbow Aqua'
+  }
+
+  return 'Rainbow Pets'
+}
 
 const mapAdminProductToStorefrontProduct = (product: AdminProduct): Product => {
   const category =
@@ -49,10 +80,12 @@ const mapAdminProductToStorefrontProduct = (product: AdminProduct): Product => {
     isFeatured: product.featured,
     rating: 4.5,
     reviews: 0,
+    brand: inferBrand(product),
     tags: [
       slugify(product.category),
       slugify(product.subcategory || product.category),
       slugify(product.productType),
+      slugify(inferBrand(product)),
       'admin-added',
     ],
   }
@@ -98,7 +131,22 @@ export function useStorefrontProducts() {
   )
 
   const storefrontProducts = useMemo(
-    () => mappedProducts,
+    () => {
+      const productMap = new Map<string, Product>()
+
+      staticProducts.forEach((product) => {
+        productMap.set(product.id, {
+          ...product,
+          brand: product.brand ?? 'Rainbow Aqua',
+        })
+      })
+
+      mappedProducts.forEach((product) => {
+        productMap.set(product.id, product)
+      })
+
+      return Array.from(productMap.values())
+    },
     [mappedProducts]
   )
 
